@@ -1,0 +1,43 @@
+| **Component**                      | **Purpose**                                                                                        | **Key Responsibilities**                                                                                                                                                                                                                                                                                                               | **Key Interactions**                                                                                         |
+|------------------------------------|----------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| **1. Configuration Manager**       | Centralises AI model settings and general plugin configuration.                                   | - Stores and manages API keys for OpenAI, Anthropic, Mistral AI.<br/>- Controls maximum concurrent API calls.<br/>- Enables or disables parallel processing.<br/>- Oversees global settings (e.g., rate limits).                                                                                                                                          | - Interacts with **AI Model Manager** to apply concurrency and model selections.<br/>- Used by **Execution Engine** to retrieve configurations.       |
+| **2. AI Model Manager**            | Handles requests to various AI models and applies the relevant model-specific settings.           | - Determines which AI model to use for a given Transformer.<br/>- Applies model-specific parameters (e.g., temperature, model name).<br/>- Maintains connection and authentication details for each AI service.                                                                                                                                 | - Works with **Configuration Manager** to get API keys and concurrency limits.<br/>- Interfaces with **Execution Engine** to run AI tasks.            |
+| **3. Transformer Manager**         | Manages the creation, duplication, editing, and deletion of Transformers.                         | - Stores and updates Transformer configurations (name, description, input/output settings, prompt templates).<br/>- Offers an interface for adding new Transformers or duplicating existing ones.<br/>- Removes outdated Transformers to keep the workspace organised.                                                                                     | - Provides data to the **Execution Engine** about which Transformers to run.<br/>- Communicates changes to the **UI**.                               |
+| **4. Prompt Editor**               | Enables the user to craft AI prompts with metadata and fine-tuning options.                       | - Lets users embed dynamic information (filename, folder paths, etc.) into prompts.<br/>- Adjusts AI options like temperature, model type, etc.<br/>- Ensures consistent prompt formatting for each Transformer.                                                                                                                                      | - Receives updates from the **Transformer Manager** on which prompt is being edited.<br/>- Provides final prompt data to the **Execution Engine**.    |
+| **5. Input File Processor**        | Identifies and manages the input files for each Transformer based on user-defined wildcard filters.| - Interprets wildcard patterns (e.g., `*.txt`, `src/**/*.js`).<br/>- Optionally includes subfolders in the search.<br/>- Collects and queues matching files for transformation.                                                                                                                                                           | - Informs the **Execution Engine** which files need processing.<br/>- Coordinates with the **Transformer Manager** to match Transformers to files.   |
+| **6. Output File Manager**         | Manages output directory structures and naming conventions for AI-transformed files.              | - Determines the folder where output files will be placed.<br/>- Applies naming rules (e.g., append `_transformed`, add timestamps).<br/>- Option to preserve the input folder structure within the specified output directory.                                                                                                                                   | - Used by the **Execution Engine** when writing the transformed files.<br/>- Follows settings from the **Transformer Manager** for output naming.     |
+| **7. Execution Engine**            | Orchestrates the processing of files through Transformers and AI calls.                           | - Coordinates with **AI Model Manager** to run transformations in parallel or sequentially.<br/>- Applies concurrency limits from the **Configuration Manager**.<br/>- Executes each Transformer’s prompt against every matching input file.<br/>- Collects responses and delegates output file creation to the **Output File Manager**.        | - Receives tasks from the **Transformer Manager** and file lists from **Input File Processor**.<br/>- Sends results to **Progress & Feedback**.       |
+| **8. Progress & Feedback**         | Provides real-time progress, logs, and notifications during execution.                            | - Shows progress indicators for each file being processed.<br/>- Displays logs with detailed updates and error messages.<br/>- Allows the user to see which Transformers have completed or still need processing.                                                                                                                                      | - Receives execution status from the **Execution Engine**.<br/>- Updates the **UI** with real-time logs and completion reports.                        |
+| **9. User Interface (UI)**         | Centralises the user interaction for configuring, managing, and executing Transformers.           | - Presents a dashboard for viewing and editing Transformer details.<br/>- Displays prompt editing options, input/output settings, and execution controls.<br/>- Offers a consolidated view of progress logs and results.                                                                                                                                 | - Relies on **Transformer Manager** for current Transformer data.<br/>- Fetches status from **Progress & Feedback** for updates.<br/>- Triggers tasks in the **Execution Engine**. |
+
+
+File Layout:
+vscode-ai-transformers-plugin/
+├── .vscode/
+│   ├── extensions.json       // VS Code-specific recommended extensions
+│   ├── launch.json           // Debug configuration for the extension
+│   └── tasks.json            // Build/test tasks
+├── media/
+│   └── icons/                // Icon assets if needed (e.g., plugin icon)
+├── resources/
+│   └── schemas/              // JSON schema definitions for plugin configuration
+├── src/
+│   ├── extension.ts          // Main entry point for the VS Code extension
+│   ├── config/
+│   │   ├── configurationManager.ts    // Manages global config settings (API keys, concurrency, etc.)
+│   │   └── aiModelManager.ts          // Handles connections/settings for different AI models
+│   ├── transformers/
+│   │   ├── transformerManager.ts      // Central management of Transformer creation, editing, deletion
+│   │   ├── inputFileProcessor.ts      // Handles gathering matching input files
+│   │   ├── outputFileManager.ts       // Controls output folder structuring and file naming
+│   │   └── promptEditor.ts            // Provides utilities to build and manage prompt data
+│   ├── execution/
+│   │   ├── executionEngine.ts         // Orchestrates Transformer execution and concurrency
+│   │   └── progressFeedback.ts        // Tracks progress, logs, and user-facing feedback
+│   ├── ui/
+│   │   └── uiComponents.ts            // Implements UI elements (panels, commands, etc.)
+│   └── types/                         // TypeScript definition files and interfaces
+├── .gitignore
+├── package.json                       // VS Code extension manifest (commands, contributions, etc.)
+├── README.md
+└── tsconfig.json                      // TypeScript configuration
