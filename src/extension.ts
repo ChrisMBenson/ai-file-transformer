@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { ViewEditTransformer } from './webviews/ViewEditTransformer';
 import { TransformersProvider, TransformerTreeItem } from './providers/TransformersProvider';
 import { TransformerManager } from './transformers/transformerManager';
+import { TransformerConfig } from './types';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log("Activating AI File Transformer extension...");
@@ -32,23 +33,86 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
 
-    // Command to handle Tree View selection and interaction with the Webview
-    const selectTransformerCommand = vscode.commands.registerCommand(
-        "treeTransformer.selectItem",
-        (item: TransformerTreeItem) => {
-            if (!item?.config) {
-                return;
+    // Register all commands
+    const commands = [
+        vscode.commands.registerCommand(
+            "treeTransformer.selectItem",
+            (item: TransformerTreeItem) => {
+                if (!item?.config) {
+                    return;
+                }
+                console.log(`Selected Transformer: ${item.label}`);
+                viewEditTransformerProvider.updateContent(JSON.stringify(item.config, null, 2));
             }
-            console.log(`Selected Transformer: ${item.label}`);
-            viewEditTransformerProvider.updateContent(JSON.stringify(item.config, null, 2));
-        }
-    );
+        ),
+        vscode.commands.registerCommand(
+            "ai-file-transformer.refresh",
+            () => transformersProvider.refresh()
+        ),
+        vscode.commands.registerCommand(
+            "ai-file-transformer.addTransformer",
+            async () => {
+                const newConfig: TransformerConfig = {
+                    name: "New Transformer",
+                    description: "Description",
+                    inputFiles: "",
+                    outputFolder: "",
+                    prompt: "",
+                    aiModel: "gpt-4",
+                    temperature: 0.7,
+                    preserveStructure: true,
+                    namingConvention: "same"
+                };
+                await transformersProvider.addTransformer(newConfig);
+                viewEditTransformerProvider.updateContent(JSON.stringify(newConfig, null, 2));
+            }
+        ),
+        vscode.commands.registerCommand(
+            "ai-file-transformer.editTransformer",
+            async (item: TransformerTreeItem) => {
+                if (item?.config) {
+                    viewEditTransformerProvider.updateContent(JSON.stringify(item.config, null, 2));
+                }
+            }
+        ),
+        vscode.commands.registerCommand(
+            "ai-file-transformer.deleteTransformer",
+            async (item: TransformerTreeItem) => {
+                if (item?.config) {
+                    const answer = await vscode.window.showWarningMessage(
+                        `Are you sure you want to delete transformer "${item.label}"?`,
+                        "Yes",
+                        "No"
+                    );
+                    if (answer === "Yes") {
+                        await transformersProvider.removeTransformer(item.config.name);
+                    }
+                }
+            }
+        ),
+        vscode.commands.registerCommand(
+            "ai-file-transformer.duplicateTransformer",
+            async (item: TransformerTreeItem) => {
+                if (item?.config) {
+                    const copy = { ...item.config };
+                    copy.name = `${copy.name} (Copy)`;
+                    await transformersProvider.addTransformer(copy);
+                }
+            }
+        ),
+        vscode.commands.registerCommand(
+            "ai-file-transformer.openSettings",
+            () => {
+                vscode.commands.executeCommand('workbench.action.openSettings', 'AI File Transformer');
+            }
+        )
+    ];
 
     // Add everything to context subscriptions
     context.subscriptions.push(
         webviewRegistration,
         treeViewRegistration,
-        selectTransformerCommand
+        ...commands
     );
 
     console.log("AI File Transformer extension activated successfully.");

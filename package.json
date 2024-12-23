@@ -49,11 +49,6 @@
         "icon": "$(refresh)"
       },
       {
-        "command": "ai-file-transformer.openTransformerManager",
-        "title": "Open Transformer Manager",
-        "icon": "$(preview)"
-      },
-      {
         "command": "ai-file-transformer.addTransformer",
         "title": "Add Transformer",
         "icon": "$(add)"
@@ -86,45 +81,40 @@
     "menus": {
       "view/title": [
         {
-          "command": "ai-file-transformer.refresh",
-          "when": "view == transformers",
-          "group": "navigation"
-        },
-        {
-          "command": "ai-file-transformer.openTransformerManager",
-          "when": "view == transformers",
+          "command": "ai-file-transformer.addTransformer",
+          "when": "view == treeTransformer",
           "group": "navigation@1"
         },
         {
-          "command": "ai-file-transformer.addTransformer",
-          "when": "view == transformers",
+          "command": "ai-file-transformer.refresh",
+          "when": "view == treeTransformer",
           "group": "navigation@2"
         },
         {
           "command": "ai-file-transformer.openSettings",
-          "when": "view == settings",
-          "group": "navigation"
+          "when": "view == treeTransformer",
+          "group": "navigation@4"
         }
       ],
       "view/item/context": [
         {
           "command": "ai-file-transformer.executeTransformer",
-          "when": "view == transformers && viewItem == transformer",
+          "when": "view == treeTransformer && viewItem == transformer",
           "group": "inline"
         },
         {
           "command": "ai-file-transformer.editTransformer",
-          "when": "view == transformers && viewItem == transformer",
+          "when": "view == treeTransformer && viewItem == transformer",
           "group": "1_modification@1"
         },
         {
           "command": "ai-file-transformer.deleteTransformer",
-          "when": "view == transformers && viewItem == transformer",
+          "when": "view == treeTransformer && viewItem == transformer",
           "group": "1_modification@2"
         },
         {
           "command": "ai-file-transformer.duplicateTransformer",
-          "when": "view == transformers && viewItem == transformer",
+          "when": "view == treeTransformer && viewItem == transformer",
           "group": "1_modification@3"
         }
       ]
