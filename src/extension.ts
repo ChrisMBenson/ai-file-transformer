@@ -1,26 +1,59 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { ViewEditTransformer } from './webviews/ViewEditTransformer';
+import { TransformersProvider, TransformerTreeItem } from './providers/TransformersProvider';
+import { TransformerManager } from './transformers/transformerManager';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+    console.log("Activating AI File Transformer extension...");
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "ai-file-transformer" is now active!');
+    // Initialize the Webview View Provider
+    const viewEditTransformerProvider = new ViewEditTransformer(context.extensionUri);
+    const transformerManager = new TransformerManager(context);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('ai-file-transformer.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from AI File Transformer!');
-	});
+    // Initialize the Tree Data Provider
+    //const transformerTreeProvider = new TransformerTreeProvider();
+    const transformersProvider = new TransformersProvider(transformerManager);
 
-	context.subscriptions.push(disposable);
+    // Register the Webview View
+    const webviewRegistration = vscode.window.registerWebviewViewProvider(
+        "viewEditTransformer",
+        viewEditTransformerProvider,
+        {
+            webviewOptions: {
+                retainContextWhenHidden: true // Keeps the Webview's state when hidden
+            }
+        }
+    );
+
+    // Register the Tree View
+    const treeViewRegistration = vscode.window.createTreeView("treeTransformer", {
+        treeDataProvider: transformersProvider, //transformerTreeProvider,
+        showCollapseAll: true
+    });
+
+
+    // Command to handle Tree View selection and interaction with the Webview
+    const selectTransformerCommand = vscode.commands.registerCommand(
+        "treeTransformer.selectItem",
+        (item: TransformerTreeItem) => {
+            if (!item?.config) {
+                return;
+            }
+            console.log(`Selected Transformer: ${item.label}`);
+            viewEditTransformerProvider.updateContent(JSON.stringify(item.config, null, 2));
+        }
+    );
+
+    // Add everything to context subscriptions
+    context.subscriptions.push(
+        webviewRegistration,
+        treeViewRegistration,
+        selectTransformerCommand
+    );
+
+    console.log("AI File Transformer extension activated successfully.");
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() {
+    console.log("Deactivating AI File Transformer extension...");
+}

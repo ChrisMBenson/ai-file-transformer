@@ -9,15 +9,126 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ai-file-transformer",
+          "title": "AI File Transformer",
+          "icon": "media/transformer.svg"
+        }        
+      ]
+    },
+    "views": {
+      "ai-file-transformer": [
+        {
+          "id": "treeTransformer",
+          "name": "Tree Transformer"
+        },
+        {
+          "type": "webview",
+          "id": "viewEditTransformer",
+          "name": "Edit Transformer",
+          "icon": "media/transformer.svg"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "ai-file-transformer.helloWorld",
-        "title": "Hello World"
+        "command": "treeTransformer.selectItem",
+        "title": "Select Item"
+      },
+      {
+        "command": "ai-file-transformer.showPanel",
+        "title": "AI File Transformer: Show Panel"
+      },
+      {
+        "command": "ai-file-transformer.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "ai-file-transformer.openTransformerManager",
+        "title": "Open Transformer Manager",
+        "icon": "$(preview)"
+      },
+      {
+        "command": "ai-file-transformer.addTransformer",
+        "title": "Add Transformer",
+        "icon": "$(add)"
+      },
+      {
+        "command": "ai-file-transformer.editTransformer",
+        "title": "Edit Transformer"
+      },
+      {
+        "command": "ai-file-transformer.executeTransformer",
+        "title": "Execute Transformer",
+        "icon": "$(play)"
+      },
+      {
+        "command": "ai-file-transformer.deleteTransformer",
+        "title": "Delete Transformer",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "ai-file-transformer.duplicateTransformer",
+        "title": "Duplicate Transformer",
+        "icon": "$(files)"
+      },
+      {
+        "command": "ai-file-transformer.openSettings",
+        "title": "Open Settings",
+        "icon": "$(gear)"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "ai-file-transformer.refresh",
+          "when": "view == transformers",
+          "group": "navigation"
+        },
+        {
+          "command": "ai-file-transformer.openTransformerManager",
+          "when": "view == transformers",
+          "group": "navigation@1"
+        },
+        {
+          "command": "ai-file-transformer.addTransformer",
+          "when": "view == transformers",
+          "group": "navigation@2"
+        },
+        {
+          "command": "ai-file-transformer.openSettings",
+          "when": "view == settings",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ai-file-transformer.executeTransformer",
+          "when": "view == transformers && viewItem == transformer",
+          "group": "inline"
+        },
+        {
+          "command": "ai-file-transformer.editTransformer",
+          "when": "view == transformers && viewItem == transformer",
+          "group": "1_modification@1"
+        },
+        {
+          "command": "ai-file-transformer.deleteTransformer",
+          "when": "view == transformers && viewItem == transformer",
+          "group": "1_modification@2"
+        },
+        {
+          "command": "ai-file-transformer.duplicateTransformer",
+          "when": "view == transformers && viewItem == transformer",
+          "group": "1_modification@3"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
