@@ -8,9 +8,6 @@ import { TransformerConfig } from './types';
 export function activate(context: vscode.ExtensionContext) {
     console.log("Activating AI File Transformer extension...");
 
-    // Initialize the Webview View Provider
-    const viewEditTransformerProvider = new ViewEditTransformer(context.extensionUri, context);
-    
     // Initialize the Transformer Manager with storage
     const transformerStorage = new VSCodeTransformerStorage(context);
     const transformerManager = new TransformerManager(transformerStorage);
@@ -18,6 +15,9 @@ export function activate(context: vscode.ExtensionContext) {
     // Initialize the Tree Data Provider
     //const transformerTreeProvider = new TransformerTreeProvider();
     const transformersProvider = new TransformersProvider(transformerManager);
+
+    // Initialize the Webview View Provider
+    const viewEditTransformerProvider = new ViewEditTransformer(context.extensionUri, context, transformersProvider);
 
     // Register the Webview View
     const webviewRegistration = vscode.window.registerWebviewViewProvider(

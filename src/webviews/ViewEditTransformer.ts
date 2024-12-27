@@ -2,17 +2,21 @@ import * as vscode from 'vscode';
 import { TransformerConfig } from '../types';
 import { TransformerManager } from '../transformers/transformerManager';
 import { VSCodeTransformerStorage } from '../types/storage';
+import { TransformersProvider } from '../providers/TransformersProvider';
 
 export class ViewEditTransformer implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
 
     private transformerManager: TransformerManager;
+    private transformersProvider: TransformersProvider;
 
     constructor(
         private readonly extensionUri: vscode.Uri,
-        private readonly context: vscode.ExtensionContext
+        private readonly context: vscode.ExtensionContext,
+        transformersProvider: TransformersProvider
     ) {
         this.transformerManager = new TransformerManager(new VSCodeTransformerStorage(this.context));
+        this.transformersProvider = transformersProvider;
     }
 
     public resolveWebviewView(
@@ -44,6 +48,9 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                         try {
                             const config = JSON.parse(message.data) as TransformerConfig;
                             await this.transformerManager.updateTransformer(config);
+                            console.log('Transformer updated, refreshing...');
+                            await this.transformersProvider.refresh();
+                            console.log('Refresh complete');
                             vscode.window.showInformationMessage('Transformer configuration saved');
                         } catch (error) {
                             vscode.window.showErrorMessage('Failed to save transformer configuration');

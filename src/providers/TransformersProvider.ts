@@ -28,8 +28,11 @@ export class TransformersProvider implements vscode.TreeDataProvider<Transformer
 
     constructor(public transformerManager: TransformerManager) {}
 
-    refresh(): void {
-        this._onDidChangeTreeData.fire();
+    async refresh(): Promise<void> {
+        console.log('Refreshing transformers...');
+        await this.transformerManager.loadTransformers();
+        console.log('Transformers refreshed, firing change event');
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     getTreeItem(element: TransformerTreeItem): vscode.TreeItem {

@@ -28,7 +28,7 @@ export class TransformerManager {
      * Load transformers from storage
      * @private
      */
-    private async loadTransformers(): Promise<void> {
+    public async loadTransformers(): Promise<void> {
         this.transformers = await this.storage.loadTransformers();
     }
 
@@ -66,7 +66,9 @@ export class TransformerManager {
             throw new TransformerNotFoundError(config.name);
         }
         this.validateTransformerConfig(config);
+        console.log('Updating transformer:', config);
         this.transformers.set(config.id, config);
+        console.log('Current transformers:', Array.from(this.transformers.values()));
         await this.saveTransformers();
     }
 
