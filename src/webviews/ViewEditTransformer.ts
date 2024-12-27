@@ -80,50 +80,88 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                 <style>
                     body {
                         font-family: var(--vscode-font-family);
-                        padding: 10px;
+                        padding: 0 16px 16px;
                         color: var(--vscode-foreground);
-                        background-color: var(--vscode-editor-background);
+                        background-color: var(--vscode-sideBar-background);
                     }
                     .container {
                         display: flex;
                         flex-direction: column;
-                        gap: 10px;
+                        gap: 8px;
                     }
                     button {
                         background-color: var(--vscode-button-background);
                         color: var(--vscode-button-foreground);
                         border: none;
-                        padding: 8px 12px;
+                        padding: 4px 12px;
                         cursor: pointer;
                         border-radius: 2px;
+                        font-size: var(--vscode-font-size);
                     }
                     button:hover {
                         background-color: var(--vscode-button-hoverBackground);
                     }
                     .section {
-                        background-color: var(--vscode-editor-background);
-                        padding: 10px;
+                        background-color: var(--vscode-sideBarSectionHeader-background);
+                        padding: 16px;
                         border-radius: 4px;
                         border: 1px solid var(--vscode-panel-border);
                     }
                     pre {
-                        background-color: var(--vscode-editor-background);
-                        padding: 10px;
-                        border-radius: 4px;
+                        background-color: var(--vscode-textBlockQuote-background);
+                        padding: 8px;
+                        border-radius: 2px;
                         overflow-x: auto;
                         white-space: pre-wrap;
                         word-wrap: break-word;
+                        font-family: var(--vscode-editor-font-family);
+                        font-size: var(--vscode-editor-font-size);
+                    }
+                    .form-group {
+                        margin-bottom: 12px;
+                    }
+                    label {
+                        display: block;
+                        margin-bottom: 4px;
+                        color: var(--vscode-foreground);
+                        font-size: var(--vscode-font-size);
+                    }
+                    input, textarea {
+                        width: 100%;
+                        padding: 4px;
+                        border: 1px solid var(--vscode-input-border);
+                        background-color: var(--vscode-input-background);
+                        color: var(--vscode-input-foreground);
+                        font-family: var(--vscode-font-family);
+                        font-size: var(--vscode-font-size);
+                        border-radius: 2px;
+                    }
+                    textarea {
+                        min-height: 100px;
+                        resize: vertical;
                     }
                     .transformer-field {
                         margin: 8px 0;
                     }
                     .field-label {
-                        color: var(--vscode-editor-foreground);
-                        font-weight: bold;
+                        color: var(--vscode-foreground);
+                        font-weight: 600;
+                        font-size: var(--vscode-font-size);
                     }
                     .field-value {
-                        color: var(--vscode-textPreformat-foreground);
+                        color: var(--vscode-descriptionForeground);
                         margin-left: 8px;
+                        font-size: var(--vscode-font-size);
+                    }
+                    h3, h4 {
+                        color: var(--vscode-foreground);
+                        margin-top: 0;
+                        margin-bottom: 12px;
+                    }
+                    p {
+                        margin: 0 0 12px;
+                        color: var(--vscode-foreground);
+                        font-size: var(--vscode-font-size);
                     }
                 </style>
             </head>
