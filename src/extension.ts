@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ViewEditTransformer } from './webviews/ViewEditTransformer';
+import { VSCodeTransformerStorage } from './types/storage';
 import { TransformersProvider, TransformerTreeItem } from './providers/TransformersProvider';
 import { TransformerManager } from './transformers/transformerManager';
 import { TransformerConfig } from './types';
@@ -9,7 +10,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Initialize the Webview View Provider
     const viewEditTransformerProvider = new ViewEditTransformer(context.extensionUri);
-    const transformerManager = new TransformerManager(context);
+    
+    // Initialize the Transformer Manager with storage
+    const transformerStorage = new VSCodeTransformerStorage(context);
+    const transformerManager = new TransformerManager(transformerStorage);
 
     // Initialize the Tree Data Provider
     //const transformerTreeProvider = new TransformerTreeProvider();
