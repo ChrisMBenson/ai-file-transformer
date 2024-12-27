@@ -23,13 +23,23 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
             webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
             // Handle messages from the webview
-            webviewView.webview.onDidReceiveMessage((message) => {
+            webviewView.webview.onDidReceiveMessage(async (message) => {
                 switch (message.command) {
                     case 'alert':
                         vscode.window.showInformationMessage(message.text);
                         break;
                     case 'selectTransformer':
                         vscode.window.showInformationMessage(`Selected Transformer: ${message.transformer}`);
+                        break;
+                    case 'save':
+                        try {
+                            const config = JSON.parse(message.data);
+                            // TODO: Implement save logic
+                            vscode.window.showInformationMessage('Transformer configuration saved');
+                        } catch (error) {
+                            vscode.window.showErrorMessage('Failed to save transformer configuration');
+                            console.error('Save error:', error);
+                        }
                         break;
                 }
             });
@@ -109,19 +119,47 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                         <div id="transformerDetails">
                             <p>No transformer selected.</p>
                         </div>
+                        <div id="editControls" style="display: none;">
+                            <h4>Edit Transformer</h4>
+                            <div class="form-group">
+                                <label for="nameInput">Name:</label>
+                                <input type="text" id="nameInput" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="descriptionInput">Description:</label>
+                                <textarea id="descriptionInput" class="form-control"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputFilesInput">Input Files:</label>
+                                <input type="text" id="inputFilesInput" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="outputFolderInput">Output Folder:</label>
+                                <input type="text" id="outputFolderInput" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="promptInput">Prompt:</label>
+                                <textarea id="promptInput" class="form-control"></textarea>
+                            </div>
+                            <button id="saveButton" class="btn-primary">Save Changes</button>
+                            <button id="cancelButton" class="btn-secondary">Cancel</button>
+                        </div>
                     </div>
                 </div>
 
                 <script nonce="${nonce}">
                     const vscode = acquireVsCodeApi();
+                    let currentConfig = null;
 
+                    // Handle incoming messages
                     window.addEventListener('message', (event) => {
                         const message = event.data;
                         if (message.command === 'update') {
+                            currentConfig = JSON.parse(message.data);
                             const details = document.getElementById('transformerDetails');
+                            const editControls = document.getElementById('editControls');
+                            
                             try {
-                                const config = JSON.parse(message.data);
-                                
                                 function escapeHtml(unsafe) {
                                     return unsafe
                                         .replace(/&/g, "&amp;")
@@ -131,32 +169,75 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                         .replace(/'/g, "&#039;");
                                 }
                                 
-                                const html = 
+                                const html =
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Name:</span>' +
-                                    '<span class="field-value">' + escapeHtml(config.name) + '</span>' +
+                                    '<span class="field-value">' + escapeHtml(currentConfig.name) + '</span>' +
                                     '</div>' +
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Description:</span>' +
-                                    '<span class="field-value">' + escapeHtml(config.description) + '</span>' +
+                                    '<span class="field-value">' + escapeHtml(currentConfig.description) + '</span>' +
                                     '</div>' +
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Input Files:</span>' +
-                                    '<span class="field-value">' + escapeHtml(config.inputFiles) + '</span>' +
+                                    '<span class="field-value">' + escapeHtml(currentConfig.inputFiles) + '</span>' +
                                     '</div>' +
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Output Folder:</span>' +
-                                    '<span class="field-value">' + escapeHtml(config.outputFolder) + '</span>' +
+                                    '<span class="field-value">' + escapeHtml(currentConfig.outputFolder) + '</span>' +
                                     '</div>' +
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Prompt:</span>' +
-                                    '<pre>' + escapeHtml(config.prompt) + '</pre>' +
-                                    '</div>';
+                                    '<pre>' + escapeHtml(currentConfig.prompt) + '</pre>' +
+                                    '</div>' +
+                                    '<button id="editButton">Edit Transformer</button>';
+                                
                                 details.innerHTML = html;
+                                editControls.style.display = 'none';
+                                
+                                // Set up edit button
+                                document.getElementById('editButton')?.addEventListener('click', () => {
+                                    details.style.display = 'none';
+                                    editControls.style.display = 'block';
+                                    
+                                    // Populate form fields
+                                    document.getElementById('nameInput').value = currentConfig.name;
+                                    document.getElementById('descriptionInput').value = currentConfig.description;
+                                    document.getElementById('inputFilesInput').value = currentConfig.inputFiles;
+                                    document.getElementById('outputFolderInput').value = currentConfig.outputFolder;
+                                    document.getElementById('promptInput').value = currentConfig.prompt;
+                                });
                             } catch (e) {
                                 details.innerHTML = '<p>Error displaying transformer details</p>';
                             }
                         }
+                    });
+
+                    // Set up save button
+                    document.getElementById('saveButton')?.addEventListener('click', () => {
+                        const updatedConfig = {
+                            ...currentConfig,
+                            name: document.getElementById('nameInput').value,
+                            description: document.getElementById('descriptionInput').value,
+                            inputFiles: document.getElementById('inputFilesInput').value,
+                            outputFolder: document.getElementById('outputFolderInput').value,
+                            prompt: document.getElementById('promptInput').value
+                        };
+                        
+                        vscode.postMessage({
+                            command: 'save',
+                            data: JSON.stringify(updatedConfig)
+                        });
+                        
+                        // Switch back to view mode
+                        document.getElementById('transformerDetails').style.display = 'block';
+                        document.getElementById('editControls').style.display = 'none';
+                    });
+
+                    // Set up cancel button
+                    document.getElementById('cancelButton')?.addEventListener('click', () => {
+                        document.getElementById('transformerDetails').style.display = 'block';
+                        document.getElementById('editControls').style.display = 'none';
                     });
                 </script>
             </body>
