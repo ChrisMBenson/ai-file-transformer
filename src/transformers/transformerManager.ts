@@ -47,11 +47,11 @@ export class TransformerManager {
      * @throws {TransformerValidationError} If the configuration is invalid
      */
     async createTransformer(config: TransformerConfig): Promise<void> {
-        if (this.transformers.has(config.name)) {
+        if (this.transformers.has(config.id)) {
             throw new TransformerExistsError(config.name);
         }
         this.validateTransformerConfig(config);
-        this.transformers.set(config.name, config);
+        this.transformers.set(config.id, config);
         await this.saveTransformers();
     }
 
@@ -62,34 +62,43 @@ export class TransformerManager {
      * @throws {TransformerValidationError} If the configuration is invalid
      */
     async updateTransformer(config: TransformerConfig): Promise<void> {
-        if (!this.transformers.has(config.name)) {
+        if (!this.transformers.has(config.id)) {
             throw new TransformerNotFoundError(config.name);
         }
         this.validateTransformerConfig(config);
-        this.transformers.set(config.name, config);
+        this.transformers.set(config.id, config);
         await this.saveTransformers();
     }
 
     /**
      * Delete a transformer configuration
-     * @param name Name of the transformer to delete
+     * @param id ID of the transformer to delete
      * @throws {TransformerNotFoundError} If the transformer doesn't exist
      */
-    async deleteTransformer(name: string): Promise<void> {
-        if (!this.transformers.has(name)) {
-            throw new TransformerNotFoundError(name);
+    async deleteTransformer(id: string): Promise<void> {
+        if (!this.transformers.has(id)) {
+            const config = Array.from(this.transformers.values()).find(t => t.name === id);
+            if (!config) {
+                throw new TransformerNotFoundError(id);
+            }
+            id = config.id;
         }
-        this.transformers.delete(name);
+        this.transformers.delete(id);
         await this.saveTransformers();
     }
 
     /**
-     * Get a transformer configuration by name
-     * @param name Name of the transformer
+     * Get a transformer configuration by ID or name
+     * @param id ID or name of the transformer
      * @returns Transformer configuration or undefined if not found
      */
-    getTransformer(name: string): TransformerConfig | undefined {
-        return this.transformers.get(name);
+    getTransformer(id: string): TransformerConfig | undefined {
+        let config = this.transformers.get(id);
+        if (!config) {
+            // Fallback to name lookup for backward compatibility
+            config = Array.from(this.transformers.values()).find(t => t.name === id);
+        }
+        return config;
     }
 
     /**

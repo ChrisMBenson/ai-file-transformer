@@ -1,5 +1,6 @@
 // src/types/index.ts
 export interface TransformerConfig {
+    id: string;
     name: string;
     description: string;
     inputFiles: string;

@@ -1,10 +1,19 @@
 import * as vscode from 'vscode';
 import { TransformerConfig } from '../types';
+import { TransformerManager } from '../transformers/transformerManager';
+import { VSCodeTransformerStorage } from '../types/storage';
 
 export class ViewEditTransformer implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
 
-    constructor(private readonly extensionUri: vscode.Uri) {}
+    private transformerManager: TransformerManager;
+
+    constructor(
+        private readonly extensionUri: vscode.Uri,
+        private readonly context: vscode.ExtensionContext
+    ) {
+        this.transformerManager = new TransformerManager(new VSCodeTransformerStorage(this.context));
+    }
 
     public resolveWebviewView(
         webviewView: vscode.WebviewView,
@@ -33,8 +42,8 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                         break;
                     case 'save':
                         try {
-                            const config = JSON.parse(message.data);
-                            // TODO: Implement save logic
+                            const config = JSON.parse(message.data) as TransformerConfig;
+                            await this.transformerManager.updateTransformer(config);
                             vscode.window.showInformationMessage('Transformer configuration saved');
                         } catch (error) {
                             vscode.window.showErrorMessage('Failed to save transformer configuration');
@@ -217,6 +226,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                     document.getElementById('saveButton')?.addEventListener('click', () => {
                         const updatedConfig = {
                             ...currentConfig,
+                            id: currentConfig.id,
                             name: document.getElementById('nameInput').value,
                             description: document.getElementById('descriptionInput').value,
                             inputFiles: document.getElementById('inputFilesInput').value,

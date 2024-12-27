@@ -9,7 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
     console.log("Activating AI File Transformer extension...");
 
     // Initialize the Webview View Provider
-    const viewEditTransformerProvider = new ViewEditTransformer(context.extensionUri);
+    const viewEditTransformerProvider = new ViewEditTransformer(context.extensionUri, context);
     
     // Initialize the Transformer Manager with storage
     const transformerStorage = new VSCodeTransformerStorage(context);
@@ -56,7 +56,9 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand(
             "ai-file-transformer.addTransformer",
             async () => {
+                const { v4: uuidv4 } = require('uuid');
                 const newConfig: TransformerConfig = {
+                    id: uuidv4(),
                     name: "New Transformer",
                     description: "Description",
                     inputFiles: "",
@@ -98,7 +100,8 @@ export function activate(context: vscode.ExtensionContext) {
             "ai-file-transformer.duplicateTransformer",
             async (item: TransformerTreeItem) => {
                 if (item?.config) {
-                    const copy = { ...item.config };
+                    const { v4: uuidv4 } = require('uuid');
+                    const copy = { ...item.config, id: uuidv4() };
                     copy.name = `${copy.name} (Copy)`;
                     await transformersProvider.addTransformer(copy);
                 }

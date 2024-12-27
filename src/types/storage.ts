@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { randomUUID } from 'crypto';
 import { TransformerConfig } from './index';
 
 /**
@@ -31,12 +32,44 @@ export class VSCodeTransformerStorage implements ITransformerStorage {
     }
 
     async loadTransformers(): Promise<Map<string, TransformerConfig>> {
-        const storedTransformers = this.context.globalState.get<{ [key: string]: TransformerConfig }>(VSCodeTransformerStorage.STORAGE_KEY) || {};
-        return new Map(Object.entries(storedTransformers));
+        const storedData = this.context.globalState.get<TransformerConfig[] | { [key: string]: TransformerConfig }>(VSCodeTransformerStorage.STORAGE_KEY);
+        const transformerMap = new Map<string, TransformerConfig>();
+
+        if (Array.isArray(storedData)) {
+            // New format: array of transformers
+            storedData.forEach(config => {
+                if (this.isValidTransformer(config)) {
+                    transformerMap.set(config.id, config);
+                }
+            });
+        } else if (storedData && typeof storedData === 'object') {
+            // Old format: object with name keys
+            for (const [name, config] of Object.entries(storedData)) {
+                if (this.isValidTransformer(config)) {
+                    // Generate ID for old configs
+                    if (!config.id) {
+                        config.id = crypto.randomUUID();
+                    }
+                    transformerMap.set(config.id, config);
+                }
+            }
+            // Save the cleaned-up data in new format
+            await this.saveTransformers(transformerMap);
+        }
+
+        return transformerMap;
+    }
+
+    private isValidTransformer(config: any): boolean {
+        return config &&
+            typeof config === 'object' &&
+            (config.id || config.name) &&
+            typeof config.name === 'string' &&
+            typeof config.prompt === 'string';
     }
 
     async saveTransformers(transformers: Map<string, TransformerConfig>): Promise<void> {
-        const transformersObj = Object.fromEntries(transformers);
-        await this.context.globalState.update(VSCodeTransformerStorage.STORAGE_KEY, transformersObj);
+        const transformersArray = Array.from(transformers.values());
+        await this.context.globalState.update(VSCodeTransformerStorage.STORAGE_KEY, transformersArray);
     }
 }
