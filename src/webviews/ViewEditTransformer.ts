@@ -269,14 +269,35 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
 
                     // Set up save button
                     document.getElementById('saveButton')?.addEventListener('click', () => {
+                        const name = document.getElementById('nameInput').value;
+                        const prompt = document.getElementById('promptInput').value;
+                        
+                        // Clear previous errors
+                        document.querySelectorAll('.error-message').forEach(el => el.remove());
+                        
+                        // Validate required fields
+                        let isValid = true;
+                        if (!name.trim()) {
+                            document.getElementById('nameInput').insertAdjacentHTML('afterend',
+                                '<div class="error-message" style="color: var(--vscode-errorForeground); margin-top: 4px;">Name is required</div>');
+                            isValid = false;
+                        }
+                        if (!prompt.trim()) {
+                            document.getElementById('promptInput').insertAdjacentHTML('afterend',
+                                '<div class="error-message" style="color: var(--vscode-errorForeground); margin-top: 4px;">Prompt is required</div>');
+                            isValid = false;
+                        }
+                        
+                        if (!isValid) return;
+                        
                         const updatedConfig = {
                             ...currentConfig,
                             id: currentConfig.id,
-                            name: document.getElementById('nameInput').value,
+                            name: name,
                             description: document.getElementById('descriptionInput').value,
                             inputFiles: document.getElementById('inputFilesInput').value,
                             outputFolder: document.getElementById('outputFolderInput').value,
-                            prompt: document.getElementById('promptInput').value
+                            prompt: prompt
                         };
                         
                         vscode.postMessage({

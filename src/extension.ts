@@ -63,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
                     description: "Description",
                     inputFiles: "",
                     outputFolder: "",
-                    prompt: "",
+                    prompt: "Transform the input files according to the following requirements:",
                     aiModel: "gpt-4",
                     temperature: 0.7,
                     preserveStructure: true,
