@@ -11,6 +11,33 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "AI File Transformer",
+      "properties": {
+        "aiFileTransformer.aiProvider": {
+          "type": "string",
+          "enum": [
+            "Anthropic",
+            "OpenAI",
+            "Azure OpenAI",
+            "OpenRouter"
+          ],
+          "default": "OpenAI",
+          "description": "Select the AI Provider to use for transformations"
+        },
+        "aiFileTransformer.apiKey": {
+          "type": "string",
+          "description": "API key for the selected AI model",
+          "scope": "application",
+          "sensitive": true
+        },
+        "aiFileTransformer.modelName": {
+          "type": "string",
+          "description": "Name of the AI model to use",
+          "scope": "application"
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
