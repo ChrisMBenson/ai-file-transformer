@@ -159,6 +159,7 @@
     "test": "vscode-test"
   },
   "dependencies": {
+    "openai": "^4.77.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
