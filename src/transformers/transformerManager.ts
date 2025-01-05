@@ -62,10 +62,20 @@ export class TransformerManager {
      * @throws {TransformerValidationError} If the configuration is invalid
      */
     async updateTransformer(config: TransformerConfig): Promise<void> {
-        if (!this.transformers.has(config.id)) {
-            throw new TransformerNotFoundError(config.name);
+        // Validate ID exists and is a string
+        if (!config.id || typeof config.id !== 'string') {
+            throw new TransformerValidationError('Transformer ID is required and must be a string');
         }
+
+        // Check if transformer exists
+        if (!this.transformers.has(config.id)) {
+            throw new TransformerNotFoundError(config.id);
+        }
+        
+        // Validate the rest of the config
         this.validateTransformerConfig(config);
+        
+        // Update the transformer
         console.log('Updating transformer:', config);
         this.transformers.set(config.id, config);
         console.log('Current transformers:', Array.from(this.transformers.values()));

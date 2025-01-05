@@ -51,7 +51,7 @@
       "ai-file-transformer": [
         {
           "id": "treeTransformer",
-          "name": "Tree Transformer"
+          "name": "Transformers"
         },
         {
           "type": "webview",
