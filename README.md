@@ -1,17 +1,14 @@
 # VS Code AI Transformers Plugin
 
-The **VS Code AI Transformers Plugin** is a powerful extension that enables AI-powered file transformations directly within Visual Studio Code. This plugin provides a customizable interface for processing files using various AI models, making it easy to automate complex workflows and enhance productivity.
+The **VS Code AI Transformers Plugin** is a powerful extension that enables AI-powered file transformations directly within Visual Studio Code. This plugin provides a customisable interface for processing files using various AI models, making it easy to automate complex workflows and enhance productivity.
 
 ## Features
 
 - **Multiple AI Model Support**: Choose from OpenAI, Anthropic, and Mistral AI models
-- **Customizable Transformers**: Create and manage transformers with:
+- **Customisable Transformers**: Create and manage transformers with:
   - Wildcard file matching
   - Custom prompt templates with metadata support
   - Configurable output file naming and structure
-- **Parallel Processing**: Enable parallel execution with configurable concurrency limits
-- **Real-time Feedback**: Get progress updates and detailed execution logs
-- **Transformer Management**:
   - Create, duplicate, edit, and delete transformers
   - Browse and import transformers from online library (planned feature)
 
@@ -27,30 +24,32 @@ The VS Code AI Transformers Plugin can be used for various scenarios, including:
 2. **Code Refactoring**:
    - Automate code style improvements
    - Convert code between different patterns or paradigms
-   - Optimize code for performance or readability
+   - Optimise code for performance or readability
 
 3. **Code Conversions**:
    - Convert from one language to another
 
 4. **Data Transformation**:
    - Convert between different data formats (JSON, XML, CSV)
-   - Normalize data structures
+   - Normalise data structures
    - Generate sample data from schemas
 
-5. **Localization**:
+5. **Localisation**:
    - Translate documentation and UI strings
-   - Generate localized versions of code comments
+   - Generate localised versions of code comments
    - Create multilingual documentation sets
 
 6. **Testing**
     - Generate unit tests for files / folders
     - Generate test automations
 
+![VS Code AI Transformers Plugin Interface](screenshot.png)
+
 ## Architecture
 
 The plugin follows a modular architecture with these key components:
 
-1. **Configuration Manager**: Centralizes AI model settings and global configurations
+1. **Configuration Manager**: Centralises AI model settings and global configurations
 2. **AI Model Manager**: Handles requests to various AI models and applies model-specific settings
 3. **Transformer Manager**: Manages creation, editing, and deletion of transformers
 4. **Prompt Editor**: Provides tools for crafting AI prompts with metadata and fine-tuning options
@@ -58,7 +57,7 @@ The plugin follows a modular architecture with these key components:
 6. **Output File Manager**: Handles output directory structures and naming conventions
 7. **Execution Engine**: Orchestrates file processing through transformers and AI calls
 8. **Progress & Feedback**: Provides real-time progress indicators and execution logs
-9. **User Interface**: Centralizes user interaction through a comprehensive dashboard
+9. **User Interface**: Centralises user interaction through a comprehensive dashboard
 
 ## Installation
 
