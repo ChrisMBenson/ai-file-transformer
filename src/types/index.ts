@@ -25,8 +25,9 @@ interface Input {
 }
 
 interface AiConfig {
+    model: string;
     temperature: string;
-    value: string;
+    maxTokens: number;
 }
 
 export interface TransformerConfig {

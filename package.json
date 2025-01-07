@@ -162,7 +162,7 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "mocha -r ts-node/register 'src/test/transformerManager.test.ts'",
+    "test": "cross-env TEST=true mocha -r ts-node/register 'src/test/transformerManager.test.ts'",
     "test:vscode": "vscode-test"
   },
   "dependencies": {
@@ -182,6 +182,7 @@
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
     "chai": "^4.5.0",
+    "cross-env": "^7.0.3",
     "eslint": "^9.16.0",
     "mocha": "^11.0.1",
     "ts-loader": "^9.5.1",
