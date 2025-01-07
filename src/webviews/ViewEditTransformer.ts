@@ -290,7 +290,13 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                     document.getElementById('promptInput').value = currentConfig.prompt;
                                 }
                             } catch (e) {
-                                details.innerHTML = '<p>Error displaying transformer details</p>';
+                                const errorMessage = e instanceof Error ? e.message : String(e);
+                                const errorStack = e instanceof Error ? e.stack : '';
+                                console.error('Error displaying transformer details:', e);
+                                details.innerHTML = 
+                                    '<p style="color: var(--vscode-errorForeground);">Error displaying transformer details</p>' +
+                                    '<pre style="color: var(--vscode-errorForeground);">' + escapeHtml(errorMessage) + '</pre>' +
+                                    (errorStack ? '<pre style="color: var(--vscode-errorForeground);">' + escapeHtml(errorStack) + '</pre>' : '');
                             }
                         }
                     });
