@@ -145,9 +145,9 @@ export class TransformerManager {
         if (!config.name || typeof config.name !== 'string') {
             throw new TransformerValidationError('Transformer name is required');
         }
-        if (!config.prompt || typeof config.prompt !== 'string') {
-            throw new TransformerValidationError('Transformer prompt is required');
-        }
+        // if (!config.prompt || typeof config.prompt !== 'string') {
+        //     throw new TransformerValidationError('Transformer prompt is required');
+        // }
         // Add more validation rules as needed
     }
 }
