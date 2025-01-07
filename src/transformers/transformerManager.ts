@@ -21,7 +21,6 @@ export class TransformerManager {
     constructor(storage: ITransformerStorage) {
         this.storage = storage;
         this.transformers = new Map();
-        this.loadTransformers();
     }
 
     /**

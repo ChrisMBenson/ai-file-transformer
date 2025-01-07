@@ -162,7 +162,8 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "mocha -r ts-node/register 'src/test/transformerManager.test.ts'",
+    "test:vscode": "vscode-test"
   },
   "dependencies": {
     "@azure/openai": "^2.0.0",
@@ -172,6 +173,7 @@
     "yo": "^5.1.0"
   },
   "devDependencies": {
+    "@types/chai": "^5.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "^1.96.0",
@@ -179,8 +181,11 @@
     "@typescript-eslint/parser": "^8.17.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "chai": "^4.5.0",
     "eslint": "^9.16.0",
+    "mocha": "^11.0.1",
     "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4"
