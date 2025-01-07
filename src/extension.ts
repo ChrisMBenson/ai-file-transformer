@@ -9,12 +9,12 @@ import { executeTransformers } from './execution/executionEngine';
 // Create output channel for logging
 export const outputChannel = vscode.window.createOutputChannel('AI File Transformer');
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
     outputChannel.appendLine("Activating AI File Transformer extension...");
 
     // Initialize the Transformer Manager with storage
     const transformerStorage = new VSCodeTransformerStorage(context);
-    const transformerManager = new TransformerManager(transformerStorage);
+    const transformerManager = await TransformerManager.create(transformerStorage);
 
     // Initialize the Tree Data Provider
     //const transformerTreeProvider = new TransformerTreeProvider();
