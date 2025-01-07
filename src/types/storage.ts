@@ -18,6 +18,12 @@ export interface ITransformerStorage {
      * @returns Promise that resolves when save is complete
      */
     saveTransformers(transformers: Map<string, TransformerConfig>): Promise<void>;
+
+    /**
+     * Get the base path of the extension
+     * @returns The extension's base path
+     */
+    getBasePath(): string;
 }
 
 /**
@@ -71,5 +77,9 @@ export class VSCodeTransformerStorage implements ITransformerStorage {
     async saveTransformers(transformers: Map<string, TransformerConfig>): Promise<void> {
         const transformersArray = Array.from(transformers.values());
         await this.context.globalState.update(VSCodeTransformerStorage.STORAGE_KEY, transformersArray);
+    }
+
+    getBasePath(): string {
+        return this.context.extensionPath;
     }
 }

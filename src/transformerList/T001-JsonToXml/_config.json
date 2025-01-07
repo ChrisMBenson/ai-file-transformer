@@ -1,7 +1,8 @@
 {
-    "id": "T001",
+    "id": "T001", 
     "name": "JsonToXml",
-    "description": "Converts JSON to XML",
+    "description": "Converts JSON to XML",    
+    "prompt": "Convert the following JSON content into well-formatted XML. Preserve all data structures and attributes. Ensure the XML is valid and properly nested.",
     "input": [
         {
             "name": "File or Folder Path",
@@ -9,33 +10,9 @@
             "required": true
         }
     ],
-    "output": [
-        "File"
-    ],
-    "configs": [
-        {
-            "name": "Process each file",
-            "type": "checkbox",
-            "required": true,
-            "default": true
-        },
-        {
-            "name": "Preserve Structure",
-            "type": "checkbox",
-            "required": true,
-            "default": true
-        }
-    ],
-    "prompts":[
-    {
-        "name": "default",
-        "placeholders": [
-            {
-                "name": "{{content}}",
-                "description": "File Content",
-                "required": true,
-                "default": ""
-            }
-        ]
-    }]
+    "output": "File",
+    "aiModel": "gpt-3.5-turbo",
+    "temperature" : 0.5,
+    "preserveStructure": true,
+    "namingConvention": "same"
 }

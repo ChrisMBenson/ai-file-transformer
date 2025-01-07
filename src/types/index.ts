@@ -1,33 +1,9 @@
 // src/types/index.ts
-interface Placeholder {
-    name: string;
-    description: string;
-    required: boolean;
-    default: string;
-}
-
-interface Prompt {
-    name: string;
-    placeholders: Placeholder[];
-}
-
-interface Config {
-    name: string;
-    type: string; // e.g., "checkbox"
-    required: boolean;
-    default: boolean;
-}
 
 interface Input {
     name: string;
     description: string;
     required: boolean;
-}
-
-interface AiConfig {
-    model: string;
-    temperature: string;
-    maxTokens: number;
 }
 
 export interface TransformerConfig {
@@ -36,12 +12,7 @@ export interface TransformerConfig {
     description: string;
     prompt: string;
     input: Input[];
-    output: string[];
-    configs: Config[];
-    prompts: Prompt[];
-    aiConfigs: AiConfig[];
-    inputFiles: string[];
-    outputFolder: string;
+    output: string;
     aiModel: string;
     temperature: number;
     preserveStructure: boolean;
