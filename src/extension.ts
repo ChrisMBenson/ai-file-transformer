@@ -91,7 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
             "ai-file-transformer.editTransformer",
             async (item: TransformerTreeItem) => {
                 if (item?.config) {
-                    viewEditTransformerProvider.updateContent(JSON.stringify(item.config, null, 2));
+                    viewEditTransformerProvider.updateContent(JSON.stringify(item.config, null, 2), true);
                 }
             }
         ),

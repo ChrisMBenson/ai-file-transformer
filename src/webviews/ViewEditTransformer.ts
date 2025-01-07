@@ -262,6 +262,19 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                     document.getElementById('outputFolderInput').value = currentConfig.outputFolder;
                                     document.getElementById('promptInput').value = currentConfig.prompt;
                                 });
+
+                                // If showEditForm is true, automatically click the edit button
+                                if (message.showEditForm) {
+                                    details.style.display = 'none';
+                                    editControls.style.display = 'block';
+                                    
+                                    // Populate form fields
+                                    document.getElementById('nameInput').value = currentConfig.name;
+                                    document.getElementById('descriptionInput').value = currentConfig.description;
+                                    document.getElementById('inputFilesInput').value = currentConfig.inputFiles;
+                                    document.getElementById('outputFolderInput').value = currentConfig.outputFolder;
+                                    document.getElementById('promptInput').value = currentConfig.prompt;
+                                }
                             } catch (e) {
                                 details.innerHTML = '<p>Error displaying transformer details</p>';
                             }
@@ -330,11 +343,12 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
         return text;
     }
 
-    public updateContent(content: string) {
+    public updateContent(content: string, showEditForm: boolean = false) {
         if (this._view) {
             this._view.webview.postMessage({
                 command: 'update',
-                data: content
+                data: content,
+                showEditForm
             });
         }
     }
