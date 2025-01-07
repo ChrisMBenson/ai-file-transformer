@@ -13,9 +13,10 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
     constructor(
         private readonly extensionUri: vscode.Uri,
         private readonly context: vscode.ExtensionContext,
-        transformersProvider: TransformersProvider
+        transformersProvider: TransformersProvider,
+        transformerManager: TransformerManager
     ) {
-        this.transformerManager = new TransformerManager(new VSCodeTransformerStorage(this.context));
+        this.transformerManager = transformerManager;
         this.transformersProvider = transformersProvider;
     }
 

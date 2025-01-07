@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     const transformersProvider = new TransformersProvider(transformerManager);
 
     // Initialize the Webview View Provider
-    const viewEditTransformerProvider = new ViewEditTransformer(context.extensionUri, context, transformersProvider);
+    const viewEditTransformerProvider = new ViewEditTransformer(context.extensionUri, context, transformersProvider, transformerManager);
 
     // Register the Webview View
     const webviewRegistration = vscode.window.registerWebviewViewProvider(
