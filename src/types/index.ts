@@ -39,4 +39,10 @@ export interface TransformerConfig {
     configs: Config[];
     prompts: Prompt[];
     aiConfigs: AiConfig[];
+    inputFiles: string[];
+    outputFolder: string;
+    aiModel: string;
+    temperature: number;
+    preserveStructure: boolean;
+    namingConvention: string;
 }

@@ -75,13 +75,18 @@ export function activate(context: vscode.ExtensionContext) {
                     id: uuidv4(),
                     name: "New Transformer",
                     description: "Description",
-                    inputFiles: "",
+                    inputFiles: [],
                     outputFolder: "",
                     prompt: "Transform the input files according to the following requirements:",
                     aiModel: "gpt-4",
                     temperature: 0.7,
                     preserveStructure: true,
-                    namingConvention: "same"
+                    namingConvention: "same",
+                    input: [],
+                    output: [],
+                    configs: [],
+                    prompts: [],
+                    aiConfigs: []
                 };
                 await transformersProvider.addTransformer(newConfig);
                 viewEditTransformerProvider.updateContent(JSON.stringify(newConfig, null, 2));
