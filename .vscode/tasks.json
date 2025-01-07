@@ -6,7 +6,25 @@
 		{
 			"type": "npm",
 			"script": "watch",
-			"problemMatcher": "$ts-webpack-watch",
+			"problemMatcher": {
+				"owner": "webpack",
+				"fileLocation": ["relative", "${workspaceFolder}"],
+				"pattern": [
+					{
+						"regexp": "^(.*?):(\\d+):(\\d+): (error|warning) (.*)$",
+						"file": 1,
+						"line": 2,
+						"column": 3,
+						"severity": 4,
+						"message": 5
+					}
+				],
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": ".*Compilation starting.*",
+					"endsPattern": ".*Compilation (finished|failed).*"
+				}
+			},
 			"isBackground": true,
 			"presentation": {
 				"reveal": "never",

@@ -4,9 +4,13 @@ import { VSCodeTransformerStorage } from './types/storage';
 import { TransformersProvider, TransformerTreeItem } from './providers/TransformersProvider';
 import { TransformerManager } from './transformers/transformerManager';
 import { TransformerConfig } from './types';
+import { executeTransformers } from './execution/executionEngine';
+
+// Create output channel for logging
+export const outputChannel = vscode.window.createOutputChannel('AI File Transformer');
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log("Activating AI File Transformer extension...");
+    outputChannel.appendLine("Activating AI File Transformer extension...");
 
     // Initialize the Transformer Manager with storage
     const transformerStorage = new VSCodeTransformerStorage(context);
@@ -39,6 +43,16 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Register all commands
     const commands = [
+        vscode.commands.registerCommand(
+            "ai-file-transformer.executeTransformer",
+            (item: TransformerTreeItem) => {
+                if (item?.config) {
+                    executeTransformers(item.config);
+                } else {
+                    outputChannel.appendLine("Error: No transformer configuration found");
+                }
+            }
+        ),
         vscode.commands.registerCommand(
             "treeTransformer.selectItem",
             (item: TransformerTreeItem) => {
@@ -122,9 +136,10 @@ export function activate(context: vscode.ExtensionContext) {
         ...commands
     );
 
-    console.log("AI File Transformer extension activated successfully.");
+    outputChannel.appendLine("AI File Transformer extension activated successfully.");
 }
 
 export function deactivate() {
-    console.log("Deactivating AI File Transformer extension...");
+    outputChannel.appendLine("Deactivating AI File Transformer extension...");
+    outputChannel.dispose();
 }
