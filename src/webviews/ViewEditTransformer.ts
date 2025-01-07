@@ -48,6 +48,20 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                     case 'save':
                         try {
                             const config = JSON.parse(message.data) as TransformerConfig;
+                            // Validate config structure
+                            if (!config.id || typeof config.id !== 'string') {
+                                throw new Error('Invalid transformer config: missing or invalid id');
+                            }
+                            if (!config.name || typeof config.name !== 'string') {
+                                throw new Error('Invalid transformer config: missing or invalid name');
+                            }
+                            
+                            // Update the config structure to match the new TransformerConfig type
+                            config.input = config.input || [];
+                            config.output = config.output || [];
+                            config.configs = config.configs || [];
+                            config.prompts = config.prompts || [];
+                            
                             await this.transformerManager.updateTransformer(config);
                             console.log('Transformer updated, refreshing...');
                             await this.transformersProvider.refresh();
@@ -235,15 +249,15 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                     '</div>' +
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Input Files:</span>' +
-                                    '<span class="field-value">' + escapeHtml(currentConfig.inputFiles) + '</span>' +
+                                    '<span class="field-value">' + escapeHtml(currentConfig.input.map(i => i.name).join(', ')) + '</span>' +
                                     '</div>' +
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Output Folder:</span>' +
-                                    '<span class="field-value">' + escapeHtml(currentConfig.outputFolder) + '</span>' +
+                                    '<span class="field-value">' + escapeHtml(currentConfig.output.join(', ')) + '</span>' +
                                     '</div>' +
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Prompt:</span>' +
-                                    '<pre>' + escapeHtml(currentConfig.prompt) + '</pre>' +
+                                    '<pre>' + escapeHtml(currentConfig.prompts.map(p => p.name).join(', ')) + '</pre>' +
                                     '</div>' +
                                     '<button id="editButton">Edit Transformer</button>';
                                 
@@ -309,9 +323,10 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             id: currentConfig.id,
                             name: name,
                             description: document.getElementById('descriptionInput').value,
-                            inputFiles: document.getElementById('inputFilesInput').value,
-                            outputFolder: document.getElementById('outputFolderInput').value,
-                            prompt: prompt
+                                    input: currentConfig.input,
+                                    output: currentConfig.output,
+                                    configs: currentConfig.configs,
+                                    prompts: currentConfig.prompts
                         };
                         
                         vscode.postMessage({

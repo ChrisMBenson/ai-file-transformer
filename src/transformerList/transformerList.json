@@ -1,0 +1,10 @@
+{
+    "version": "07-01-2025",
+    "transformers": [
+        {
+            "id": "T001",
+            "name": "JsonToXml",
+            "folder": "T001-JsonToXml"
+        }
+    ]
+}

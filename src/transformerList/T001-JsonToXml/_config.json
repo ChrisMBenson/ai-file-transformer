@@ -1,0 +1,41 @@
+{
+    "id": "T001",
+    "name": "JsonToXml",
+    "description": "Converts JSON to XML",
+    "input": [
+        {
+            "name": "File or Folder Path",
+            "description": "Path to file or folder",
+            "required": true
+        }
+    ],
+    "output": [
+        "File"
+    ],
+    "configs": [
+        {
+            "name": "Process each file",
+            "type": "checkbox",
+            "required": true,
+            "default": true
+        },
+        {
+            "name": "Preserve Structure",
+            "type": "checkbox",
+            "required": true,
+            "default": true
+        }
+    ],
+    "prompts":[
+    {
+        "name": "default",
+        "placeholders": [
+            {
+                "name": "{{content}}",
+                "description": "File Content",
+                "required": true,
+                "default": ""
+            }
+        ]
+    }]
+}

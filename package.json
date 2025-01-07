@@ -20,9 +20,10 @@
             "Anthropic",
             "OpenAI",
             "Azure OpenAI",
+            "Google Gemini",
             "OpenRouter"
           ],
-          "default": "OpenAI",
+          "default": "Azure OpenAI",
           "description": "Select the AI Provider to use for transformations"
         },
         "aiFileTransformer.apiKey": {
@@ -34,6 +35,11 @@
         "aiFileTransformer.modelName": {
           "type": "string",
           "description": "Name of the AI model to use",
+          "scope": "application"
+        },
+        "aiFileTransformer.modelEndpoint": {
+          "type": "string",
+          "description": "Model Endpoint to use",
           "scope": "application"
         }
       }
@@ -159,8 +165,11 @@
     "test": "vscode-test"
   },
   "dependencies": {
-    "openai": "^4.77.0",
-    "uuid": "^9.0.1"
+    "@azure/openai": "^2.0.0",
+    "generator-code": "^1.11.5",
+    "openai": "^4.77.3",
+    "uuid": "^9.0.1",
+    "yo": "^5.1.0"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",

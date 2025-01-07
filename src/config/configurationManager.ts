@@ -5,6 +5,7 @@ export enum AIProvider {
     Anthropic = 'Anthropic',
     OpenAI = 'OpenAI',
     AzureOpenAI = 'Azure OpenAI',
+    GoogleGemini = 'Google Gemini',
     OpenRouter = 'OpenRouter'
 }
 
@@ -13,6 +14,7 @@ export class ConfigurationManager {
     private static readonly PROVIDER_KEY = 'aiProvider';
     private static readonly API_KEY = 'apiKey';
     private static readonly MODEL_NAME_KEY = 'modelName';
+    private static readonly MODEL_ENDPOINT = 'modelEndpoint';
 
     static getModelName(): string | undefined {
         const config = vscode.workspace.getConfiguration(this.SECTION);
@@ -42,6 +44,17 @@ export class ConfigurationManager {
     static setAPIKey(apiKey: string): Thenable<void> {
         const config = vscode.workspace.getConfiguration(this.SECTION);
         return config.update(this.API_KEY, apiKey, vscode.ConfigurationTarget.Global);
+    }
+
+
+    static getModelEndpoint(): string | undefined {
+        const config = vscode.workspace.getConfiguration(this.SECTION);
+        return config.get<string>(this.MODEL_ENDPOINT);
+    }
+
+    static setModelEndpoint(apiKey: string): Thenable<void> {
+        const config = vscode.workspace.getConfiguration(this.SECTION);
+        return config.update(this.MODEL_ENDPOINT, apiKey, vscode.ConfigurationTarget.Global);
     }
 
     static async promptForAPIKey(): Promise<void> {
