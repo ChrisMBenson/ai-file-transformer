@@ -249,15 +249,15 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                     '</div>' +
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Input Files:</span>' +
-                                    '<span class="field-value">' + escapeHtml(currentConfig.input.map(i => i.name).join(', ')) + '</span>' +
+                                    '<span class="field-value">' + escapeHtml((currentConfig.input || []).map(i => i?.name || '').join(', ')) + '</span>' +
                                     '</div>' +
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Output Folder:</span>' +
-                                    '<span class="field-value">' + escapeHtml(currentConfig.output.join(', ')) + '</span>' +
+                                    '<span class="field-value">' + escapeHtml((currentConfig.output || []).join(', ')) + '</span>' +
                                     '</div>' +
                                     '<div class="transformer-field">' +
                                     '<span class="field-label">Prompt:</span>' +
-                                    '<pre>' + escapeHtml(currentConfig.prompts.map(p => p.name).join(', ')) + '</pre>' +
+                                    '<pre>' + escapeHtml((currentConfig.prompts || []).map(p => p?.name || '').join(', ')) + '</pre>' +
                                     '</div>' +
                                     '<button id="editButton">Edit Transformer</button>';
                                 
