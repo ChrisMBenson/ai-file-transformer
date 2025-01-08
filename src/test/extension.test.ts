@@ -1,6 +1,7 @@
+import { suite, test, afterEach } from 'mocha';
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { afterEach } from 'mocha';
+
 
 suite('Extension Behavior Tests', () => {
   let extensionContext: vscode.ExtensionContext;
