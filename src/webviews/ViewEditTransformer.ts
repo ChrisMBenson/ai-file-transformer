@@ -200,6 +200,27 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                 <label for="promptInput">Prompt:</label>
                                 <textarea id="promptInput" class="form-control"></textarea>
                             </div>
+                            <div class="form-group">
+                                <label for="aiModelInput">AI Model:</label>
+                                <input type="text" id="aiModelInput" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="temperatureInput">Temperature:</label>
+                                <input type="number" id="temperatureInput" class="form-control" min="0" max="1" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label for="preserveStructureInput">Preserve Structure:</label>
+                                <input type="checkbox" id="preserveStructureInput" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="namingConventionInput">Naming Convention:</label>
+                                <select id="namingConventionInput" class="form-control">
+                                    <option value="camelCase">camelCase</option>
+                                    <option value="PascalCase">PascalCase</option>
+                                    <option value="snake_case">snake_case</option>
+                                    <option value="kebab-case">kebab-case</option>
+                                </select>
+                            </div>
                             <button id="saveButton" class="btn-primary">Save Changes</button>
                             <button id="cancelButton" class="btn-secondary">Cancel</button>
                         </div>
@@ -220,7 +241,10 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             
                             try {
                                 function escapeHtml(unsafe) {
-                                    return unsafe
+                                    if (unsafe === null || unsafe === undefined) {
+                                        return '';
+                                    }
+                                    return String(unsafe)
                                         .replace(/&/g, "&amp;")
                                         .replace(/</g, "&lt;")
                                         .replace(/>/g, "&gt;")
@@ -349,11 +373,11 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
         return text;
     }
 
-    public updateContent(content: string, showEditForm: boolean = false) {
+    public updateContent(content: TransformerConfig, showEditForm: boolean = false) {
         if (this._view) {
             this._view.webview.postMessage({
                 command: 'update',
-                data: content,
+                data: JSON.stringify(content),
                 showEditForm
             });
         }

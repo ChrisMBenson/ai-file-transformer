@@ -60,7 +60,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     return;
                 }
                 console.log(`Selected Transformer: ${item.label}`);
-                viewEditTransformerProvider.updateContent(JSON.stringify(item.config, null, 2));
+                viewEditTransformerProvider.updateContent(item.config);
             }
         ),
         vscode.commands.registerCommand(
@@ -87,14 +87,14 @@ export async function activate(context: vscode.ExtensionContext) {
                     
                 };
                 await transformersProvider.addTransformer(newConfig);
-                viewEditTransformerProvider.updateContent(JSON.stringify(newConfig, null, 2));
+                viewEditTransformerProvider.updateContent(newConfig);
             }
         ),
         vscode.commands.registerCommand(
             "ai-file-transformer.editTransformer",
             async (item: TransformerTreeItem) => {
                 if (item?.config) {
-                    viewEditTransformerProvider.updateContent(JSON.stringify(item.config, null, 2), true);
+                    viewEditTransformerProvider.updateContent(item.config, true);
                 }
             }
         ),
