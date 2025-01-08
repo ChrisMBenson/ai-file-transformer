@@ -38,7 +38,7 @@ import type { ITransformerStorage } from '../types/storage';
     }
   }
 
-describe('TransformerManager Behavior Tests', () => {
+suite('TransformerManager Behavior Tests', () => {
   let manager: TransformerManager;
   let storage: MockStorage;
 
@@ -59,22 +59,23 @@ describe('TransformerManager Behavior Tests', () => {
     namingConvention: 'original'
   };
 
-  before(() => {
+  suiteSetup(() => {
+    process.env.TEST = 'true';
     storage = new MockStorage();
   });
 
-  beforeEach(async () => {
+  setup(async () => {
     storage.clear();
     manager = await TransformerManager.create(storage);
   });
 
-  it('should allow creating a new transformer with valid configuration', async () => {
+  test('should allow creating a new transformer with valid configuration', async () => {
     await manager.createTransformer(baseConfig);
     const result = manager.getTransformer(baseConfig.id);
     assert.deepStrictEqual(result, baseConfig);
   });
 
-  it('should prevent creating duplicate transformers', async () => {
+  test('should prevent creating duplicate transformers', async () => {
     await manager.createTransformer(baseConfig);
     await assert.rejects(
       () => manager.createTransformer(baseConfig),
@@ -82,7 +83,7 @@ describe('TransformerManager Behavior Tests', () => {
     );
   });
 
-  it('should validate required fields when creating transformer', async () => {
+  test('should validate required fields when creating transformer', async () => {
     const invalidConfig = { ...baseConfig, name: '' };
     await assert.rejects(
       () => manager.createTransformer(invalidConfig),
@@ -90,7 +91,7 @@ describe('TransformerManager Behavior Tests', () => {
     );
   });
 
-  it('should retrieve transformer by ID or name', async () => {
+  test('should retrieve transformer by ID or name', async () => {
     await manager.createTransformer(baseConfig);
     
     const byId = manager.getTransformer(baseConfig.id);
@@ -100,12 +101,12 @@ describe('TransformerManager Behavior Tests', () => {
     assert.deepStrictEqual(byName, baseConfig);
   });
 
-  it('should return undefined for non-existent transformer', () => {
+  test('should return undefined for non-existent transformer', () => {
     const result = manager.getTransformer('non-existent');
     assert.strictEqual(result, undefined);
   });
 
-  it('should list all available transformers', async () => {
+  test('should list all available transformers', async () => {
     await manager.createTransformer(baseConfig);
     const secondConfig = { ...baseConfig, id: 'test-2', name: 'Test 2' };
     await manager.createTransformer(secondConfig);
@@ -115,7 +116,7 @@ describe('TransformerManager Behavior Tests', () => {
     assert.deepStrictEqual(all, [baseConfig, secondConfig]);
   });
 
-  it('should update existing transformer configuration', async () => {
+  test('should update existing transformer configuration', async () => {
     await manager.createTransformer(baseConfig);
     const updatedConfig = { ...baseConfig, description: 'Updated description' };
     
@@ -124,7 +125,7 @@ describe('TransformerManager Behavior Tests', () => {
     assert.deepStrictEqual(result, updatedConfig);
   });
 
-  it('should prevent updating non-existent transformer', async () => {
+  test('should prevent updating non-existent transformer', async () => {
     const nonExistentConfig = { ...baseConfig, id: 'non-existent' };
     await assert.rejects(
       () => manager.updateTransformer(nonExistentConfig),
@@ -132,7 +133,7 @@ describe('TransformerManager Behavior Tests', () => {
     );
   });
 
-  it('should validate configuration when updating transformer', async () => {
+  test('should validate configuration when updating transformer', async () => {
     await manager.createTransformer(baseConfig);
     const invalidConfig = { ...baseConfig, name: '' };
     
@@ -142,7 +143,7 @@ describe('TransformerManager Behavior Tests', () => {
     );
   });
 
-  it('should delete transformer by ID or name', async () => {
+  test('should delete transformer by ID or name', async () => {
     await manager.createTransformer(baseConfig);
     
     // Delete by ID
@@ -155,20 +156,20 @@ describe('TransformerManager Behavior Tests', () => {
     assert.strictEqual(manager.getTransformer(baseConfig.name), undefined);
   });
 
-  it('should throw error when deleting non-existent transformer', async () => {
+  test('should throw error when deleting non-existent transformer', async () => {
     await assert.rejects(
       () => manager.deleteTransformer('non-existent'),
       TransformerNotFoundError
     );
   });
 
-  it('should persist transformers to storage', async () => {
+  test('should persist transformers to storage', async () => {
     await manager.createTransformer(baseConfig);
     const saved = await storage.loadTransformers();
     assert.deepStrictEqual(saved.get(baseConfig.id), baseConfig);
   });
 
-  it('should load transformers from storage on initialization', async () => {
+  test('should load transformers from storage on initialization', async () => {
     // Create initial manager and save transformer
     const initialManager = await TransformerManager.create(storage);
     await initialManager.createTransformer(baseConfig);
@@ -179,7 +180,7 @@ describe('TransformerManager Behavior Tests', () => {
     assert.deepStrictEqual(result, baseConfig);
   });
 
-  it('should maintain data integrity after multiple operations', async () => {
+  test('should maintain data integrity after multiple operations', async () => {
     // Create initial transformer
     await manager.createTransformer(baseConfig);
     
@@ -200,8 +201,8 @@ describe('TransformerManager Behavior Tests', () => {
     assert.deepStrictEqual(all[0], secondConfig);
   });
 
-  describe('AI Model Configuration Tests', () => {
-    it('should validate AI model configuration', async () => {
+  suite('AI Model Configuration Tests', () => {
+    test('should validate AI model configuration', async () => {
       const invalidConfig = { ...baseConfig, aiModel: 'invalid-model' };
       await assert.rejects(
         () => manager.createTransformer(invalidConfig),
@@ -209,7 +210,7 @@ describe('TransformerManager Behavior Tests', () => {
       );
     });
 
-    it('should validate temperature range', async () => {
+    test('should validate temperature range', async () => {
       const highTemp = { ...baseConfig, temperature: 2.0 };
       const lowTemp = { ...baseConfig, temperature: -1.0 };
       
@@ -223,7 +224,7 @@ describe('TransformerManager Behavior Tests', () => {
       );
     });
 
-    it('should accept valid temperature values', async () => {
+    test('should accept valid temperature values', async () => {
       const validConfig = { ...baseConfig, temperature: 0.5 };
       await manager.createTransformer(validConfig);
       const result = manager.getTransformer(validConfig.id);
@@ -232,8 +233,8 @@ describe('TransformerManager Behavior Tests', () => {
     });
   });
 
-  describe('File Handling Tests', () => {
-    it('should validate naming convention', async () => {
+  suite('File Handling Tests', () => {
+    test('should validate naming convention', async () => {
       const invalidConfig = { ...baseConfig, namingConvention: 'invalid' };
       await assert.rejects(
         () => manager.createTransformer(invalidConfig),
@@ -242,8 +243,8 @@ describe('TransformerManager Behavior Tests', () => {
     });
   });
 
-  describe('Additional Validation Tests', () => {
-    it('should validate prompt content', async () => {
+  suite('Additional Validation Tests', () => {
+    test('should validate prompt content', async () => {
       const invalidConfig = { ...baseConfig, prompt: '' };
       await assert.rejects(
         () => manager.createTransformer(invalidConfig),
@@ -251,7 +252,7 @@ describe('TransformerManager Behavior Tests', () => {
       );
     });
 
-    it('should validate input/output configuration', async () => {
+    test('should validate input/output configuration', async () => {
       const invalidInput = { ...baseConfig, input: [] };
       const invalidOutput = { ...baseConfig, output: '' };
       
@@ -265,7 +266,7 @@ describe('TransformerManager Behavior Tests', () => {
       );
     });
 
-    it('should validate AI configs', async () => {
+    test('should validate AI configs', async () => {
       // Test invalid model
       const invalidModel = { 
         ...baseConfig, 
@@ -297,7 +298,7 @@ describe('TransformerManager Behavior Tests', () => {
       );
     });
 
-    it('should validate input/output array elements', async () => {
+    test('should validate input/output array elements', async () => {
       // Test invalid input array element
       const invalidInput = { 
         ...baseConfig, 

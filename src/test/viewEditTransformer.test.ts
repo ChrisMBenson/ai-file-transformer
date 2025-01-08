@@ -3,16 +3,45 @@ import * as vscode from './mocks/vscode';
 import { ViewEditTransformer } from '../webviews/ViewEditTransformer';
 import { TransformerManager } from '../transformers/transformerManager';
 import { TransformersProvider } from '../providers/TransformersProvider';
-import { VSCodeTransformerStorage } from '../types/storage';
+import type { ITransformerStorage } from '../types/storage';
 import type { TransformerConfig } from '../types';
 
-describe('ViewEditTransformer Tests', () => {
+suite('ViewEditTransformer Tests', () => {
   let webview: ViewEditTransformer;
   let manager: TransformerManager;
-  let storage: VSCodeTransformerStorage;
+  // Mock storage implementation
+  class MockStorage implements ITransformerStorage {
+    private transformers = new Map<string, TransformerConfig>();
+
+    constructor() {
+      this.clear();
+    }
+
+    async saveTransformers(transformers: Map<string, TransformerConfig>): Promise<void> {
+      this.transformers.clear();
+      transformers.forEach((value, key) => {
+        this.transformers.set(key, value);
+      });
+    }
+
+    async loadTransformers(): Promise<Map<string, TransformerConfig>> {
+      return new Map(this.transformers);
+    }
+
+    clear(): void {
+      this.transformers.clear();
+    }
+
+    getBasePath(): string {
+      return __dirname;
+    }
+  }
+
+  let storage: MockStorage;
   let provider: TransformersProvider;
   let extensionContext: vscode.ExtensionContext;
   let webviewView: vscode.WebviewView;
+  let messageHandler: (message: any) => Promise<void>;
 
   const baseConfig: TransformerConfig = {
     id: 'test-transformer',
@@ -31,7 +60,7 @@ describe('ViewEditTransformer Tests', () => {
     namingConvention: 'original'
   };
 
-  beforeEach(async () => {
+  setup(async () => {
     // Mock the extension context
     extensionContext = {
       extensionUri: vscode.Uri.file(__dirname),
@@ -80,8 +109,11 @@ describe('ViewEditTransformer Tests', () => {
       }
     } as unknown as vscode.ExtensionContext;
 
+    // Set test environment
+    process.env.TEST = 'true';
+    
     // Create storage and manager
-    storage = new VSCodeTransformerStorage(extensionContext);
+    storage = new MockStorage();
     manager = await TransformerManager.create(storage);
     
     // Create provider
@@ -95,19 +127,22 @@ describe('ViewEditTransformer Tests', () => {
       manager
     );
 
-    // Mock webview view
+    // Mock webview view with message handler tracking
     webviewView = {
       webview: {
         html: '',
         options: {},
-        onDidReceiveMessage: () => ({ dispose: () => {} }),
+        onDidReceiveMessage: (handler: (message: any) => Promise<void>) => {
+          messageHandler = handler;
+          return { dispose: () => {} };
+        },
         postMessage: async (message: any) => true
       }
     } as unknown as vscode.WebviewView;
   });
 
-  describe('View Transformer Tests', () => {
-    it('should initialize webview correctly', async () => {
+  suite('View Transformer Tests', () => {
+    test('should initialize webview correctly', async () => {
       await manager.createTransformer(baseConfig);
       webview.resolveWebviewView(webviewView, {} as vscode.WebviewViewResolveContext, {} as vscode.CancellationToken);
       
@@ -115,7 +150,7 @@ describe('ViewEditTransformer Tests', () => {
       assert.ok(webviewView.webview.html.length > 0);
     });
 
-    it('should update content when transformer changes', async () => {
+    test('should update content when transformer changes', async () => {
       await manager.createTransformer(baseConfig);
       webview.resolveWebviewView(webviewView, {} as vscode.WebviewViewResolveContext, {} as vscode.CancellationToken);
       
@@ -138,12 +173,12 @@ describe('ViewEditTransformer Tests', () => {
     });
   });
 
-  describe('Message Handling Tests', () => {
-    beforeEach(() => {
+  suite('Message Handling Tests', () => {
+    setup(() => {
       webview.resolveWebviewView(webviewView, {} as vscode.WebviewViewResolveContext, {} as vscode.CancellationToken);
     });
 
-    it('should handle save message', async () => {
+    test('should handle save message', async () => {
       await manager.createTransformer(baseConfig);
       
       const updatedConfig = {
@@ -152,8 +187,7 @@ describe('ViewEditTransformer Tests', () => {
         description: 'Updated description'
       };
 
-      // Simulate save message from webview
-      const messageHandler = (webviewView.webview.onDidReceiveMessage as any).mock.calls[0][0];
+      // Simulate save message from webview using tracked handler
       await messageHandler({
         command: 'save',
         data: JSON.stringify(updatedConfig)
@@ -165,7 +199,7 @@ describe('ViewEditTransformer Tests', () => {
       assert.strictEqual(saved?.description, 'Updated description');
     });
 
-    it('should validate data before saving', async () => {
+    test('should validate data before saving', async () => {
       await manager.createTransformer(baseConfig);
       
       const invalidConfig = {
@@ -173,8 +207,7 @@ describe('ViewEditTransformer Tests', () => {
         name: '' // Invalid: empty name
       };
 
-      // Simulate save message with invalid data
-      const messageHandler = (webviewView.webview.onDidReceiveMessage as any).mock.calls[0][0];
+      // Simulate save message with invalid data using tracked handler
       try {
         await messageHandler({
           command: 'save',

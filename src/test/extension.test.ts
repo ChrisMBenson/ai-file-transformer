@@ -1,4 +1,4 @@
-import { suite, test, afterEach } from 'mocha';
+import { suite, test, teardown, suiteSetup } from 'mocha';
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 
@@ -8,7 +8,7 @@ suite('Extension Behavior Tests', () => {
 
   suiteSetup(async () => {
     // Activate the extension
-    const extension = vscode.extensions.getExtension('your-extension-id');
+    const extension = vscode.extensions.getExtension('leewsimpson.ai-file-transformer');
     if (!extension) {
       throw new Error('Extension not found');
     }
@@ -53,7 +53,7 @@ suite('Extension Behavior Tests', () => {
     }
   });
 
-  afterEach(async () => {
+  teardown(async () => {
     // Clean up test files
     const uri = vscode.Uri.file('test-file.txt');
     try {
