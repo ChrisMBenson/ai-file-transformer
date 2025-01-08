@@ -131,10 +131,6 @@
                     <textarea id="descriptionInput" class="form-control"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="inpInut">Inputs:</label>
-                    <button id="inpInut" class="form-control">Open File Browser</button>
-                </div>
-                <div class="form-group">
                     <label for="promptInput">Prompt:</label>
                     <textarea id="promptInput" class="form-control"></textarea>
                 </div>
@@ -191,7 +187,7 @@
                     }
 
                     console.log(currentConfig.input)
-                    
+
                     const html =
                         '<div class="transformer-field">' +
                         '<span class="field-label">Name:</span>' +
@@ -219,7 +215,12 @@
                         '</div>' +
                         '<div class="transformer-field">' +
                         '<span class="field-label">Output:</span>' +
-                        '<span class="field-value">' + escapeHtml(currentConfig.output || '') + '</span>' +
+                        '<div class="field-value">' +
+                        '<div class="input-group">' +
+                        '<input class="browse-output-field" type="text" value="' + escapeHtml(currentConfig.output || '') + '" readonly>' +
+                        '<button class="btn-primary browseOutputButton">Browse</button>' +
+                        '</div>' +
+                        '</div>' +
                         '</div>' +
                         '<div class="transformer-field">' +
                         '<span class="field-label">Prompt:</span>' +
@@ -231,7 +232,11 @@
                     details.innerHTML = html;
                     editControls.style.display = 'none';
 
-                    document.querySelectorAll('.browseInputButton').forEach(button => {
+                    document.querySelector('.browseOutputButton')?.addEventListener('click', () => {
+                                vscode.postMessage({ command: 'openFileDialog', output: true });
+                            });
+
+                    document.querySelectorAll('.browseInputButton, .browseOutputButton').forEach(button => {
                         button.addEventListener('click', () => {
                             const inputName = button.getAttribute('data-input-name');
                             vscode.postMessage({ command: 'openFileDialog', inputName });
@@ -294,6 +299,21 @@
                         command: 'save',
                         data: JSON.stringify(updatedConfig)
                     });
+                }
+                if (message.output) {
+                    const outputField = document.querySelector('.browse-output-field');
+                    if (outputField) {
+                        outputField.value = message.filePath; // Update the output box with the selected file path
+                        const updatedConfig = {
+                            ...currentConfig,
+                            output: message.filePath
+                        };
+
+                        vscode.postMessage({
+                            command: 'save',
+                            data: JSON.stringify(updatedConfig)
+                        });
+                    }
                 }
             }
         });

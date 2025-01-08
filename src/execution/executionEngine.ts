@@ -1,6 +1,7 @@
 import { outputChannel } from '../extension';
 import { TransformerConfig } from '../types';
 import { LLMClient } from '../transformers/llmFactory';
+import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 

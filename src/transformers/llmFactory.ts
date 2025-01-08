@@ -121,16 +121,16 @@ export class LLMClient {
                     model
                 );
                 break;
-            case AIProvider.AzureOpenAI:
-                this.client = new AzureOpenAIClient(
-                    ConfigurationManager.getAPIKey()!,
-                    ConfigurationManager.getModelEndpoint()!,
-                    model
-                );
-                break;
-            case AIProvider.GoogleGemini:
-                this.client = new GeminiClient(ConfigurationManager.getAPIKey()!, model);
-                break;
+            // case AIProvider.AzureOpenAI:
+            //     this.client = new AzureOpenAIClient(
+            //         ConfigurationManager.getAPIKey()!,
+            //         ConfigurationManager.getModelEndpoint()!,
+            //         model
+            //     );
+            //     break;
+            // case AIProvider.GoogleGemini:
+            //     this.client = new GeminiClient(ConfigurationManager.getAPIKey()!, model);
+            //     break;
             default:
                 throw new Error(`Unsupported provider: ${provider}`);
         }

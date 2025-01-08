@@ -12,7 +12,7 @@
             "required": true
         }
     ],
-    "output": "File",
+    "output": "",
     "aiModel": "gpt-3.5-turbo",
     "temperature" : 0.5,
     "preserveStructure": true,

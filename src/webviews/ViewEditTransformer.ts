@@ -46,17 +46,28 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                         vscode.window.showInformationMessage(`Selected Transformer: ${message.transformer}`);
                         break;
                     case 'openFileDialog':
-                        const fileUri = await vscode.window.showOpenDialog({
+                        const options: vscode.OpenDialogOptions = {
                             canSelectMany: false,
                             openLabel: 'Select File',
                             filters: {
                                 'All Files': ['*']
                             }
-                        });
+                        };
+                    
+                        if (message.output) {
+                            options.canSelectFiles = false;
+                            options.canSelectFolders = true;
+                            options.openLabel = 'Select Folder';
+                        } else {
+                            options.canSelectFiles = true;
+                            options.canSelectFolders = false;
+                        }
+
+                        const fileUri = await vscode.window.showOpenDialog(options);
                         if (fileUri && fileUri[0]) {
                             const filePath = fileUri[0].fsPath;
                             console.log('Message :', JSON.stringify(message));
-                            webviewView.webview.postMessage({ command: 'selectedFile', filePath: filePath, inputName: message.inputName });
+                            webviewView.webview.postMessage({ command: 'selectedFile', filePath: filePath, inputName: message.inputName, output: message.output });
                         }
                         break;
                     case 'save':
