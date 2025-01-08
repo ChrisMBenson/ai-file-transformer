@@ -39,27 +39,37 @@ export class TransformerManager {
      * @private
      */
     public async loadTransformers(): Promise<void> {
-        if (process.env.TEST) {
-            // In test mode, just load from storage without adding test data
-            const stored = await this.storage.loadTransformers();
-            this.transformers = new Map(stored);
-        } else {
-            // Load from filesystem
-            const fs = require('fs');
-            const path = require('path');
+        try {
+            if (process.env.TEST) {
+                // In test mode, just load from storage without adding test data
+                const stored = await this.storage.loadTransformers();
+                this.transformers = new Map(stored);
+            } else {
+                // Load from filesystem
+                const fs = require('fs');
+                const path = require('path');
 
-            const transformerListPath = path.join(this.storage.getBasePath(), 'src/transformerList/transformerList.json');
-            const transformerListData = fs.readFileSync(transformerListPath, 'utf-8');
-            const transformerList = JSON.parse(transformerListData);
+                const transformerListPath = path.join(this.storage.getBasePath(), 'src/transformerList/transformerList.json');
+                const transformerListData = fs.readFileSync(transformerListPath, 'utf-8');
+                const transformerList = JSON.parse(transformerListData);
 
-            for (const transformer of transformerList.transformers) {
-                const configPath = path.join(this.storage.getBasePath(), `src/transformerList/${transformer.folder}/_config.json`);
-                const configData = fs.readFileSync(configPath, 'utf-8');
-                const config = JSON.parse(configData) as TransformerConfig;
-                this.transformers.set(config.id, config);
+                for (const transformer of transformerList.transformers) {
+                    const configPath = path.join(this.storage.getBasePath(), `src/transformerList/${transformer.folder}/_config.json`);
+                    const configData = fs.readFileSync(configPath, 'utf-8');
+                    const config = JSON.parse(configData) as TransformerConfig;
+                    this.transformers.set(config.id, config);
+                }
+
+                await this.saveTransformers();
             }
-
-            await this.saveTransformers();
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error('Error loading transformers:', error.stack || error.message);
+                throw error;
+            } else {
+                console.error('Unknown error loading transformers:', error);
+                throw new Error('Unknown error occurred while loading transformers');
+            }
         }
     }
 
@@ -160,8 +170,14 @@ export class TransformerManager {
      */
     private validateTransformerConfig(config: TransformerConfig): void {
         // Basic required fields
+        if (!config.id || typeof config.id !== 'string') {
+            throw new TransformerValidationError('Transformer ID is required');
+        }
         if (!config.name || typeof config.name !== 'string') {
             throw new TransformerValidationError('Transformer name is required');
+        }
+        if (!config.description || typeof config.description !== 'string') {
+            throw new TransformerValidationError('Transformer description is required');
         }
         if (!config.prompt || typeof config.prompt !== 'string') {
             throw new TransformerValidationError('Transformer prompt is required');
@@ -180,66 +196,40 @@ export class TransformerManager {
             throw new TransformerValidationError('Temperature must be a number between 0 and 1');
         }
 
-        // Input files validation
-        if (!Array.isArray(config.inputFiles) || config.inputFiles.length === 0) {
-            throw new TransformerValidationError('At least one input file pattern is required');
-        }
-        const validGlobPattern = /^[^*?{}|\[\]\\\/]+\.[a-zA-Z0-9]+$/;
-        for (const pattern of config.inputFiles) {
-            if (typeof pattern !== 'string' || !validGlobPattern.test(pattern)) {
-                throw new TransformerValidationError(`Invalid input file pattern: ${pattern}`);
-            }
-        }
-
-        // Output folder validation
-        if (typeof config.outputFolder !== 'string' || 
-            !config.outputFolder.startsWith('./') || 
-            config.outputFolder.includes('..')) {
-            throw new TransformerValidationError('Output folder must be a valid relative path');
+        // Preserve structure validation
+        if (typeof config.preserveStructure !== 'boolean') {
+            throw new TransformerValidationError('Preserve structure must be a boolean');
         }
 
         // Naming convention validation
         const validNamingConventions = ['original', 'timestamp', 'uuid'];
         if (!validNamingConventions.includes(config.namingConvention)) {
-            throw new TransformerValidationError(`Invalid naming convention: ${config.namingConvention}`);
+            const errorMessage = `Invalid naming convention: "${config.namingConvention}". Valid options are: ${validNamingConventions.join(', ')}`;
+            const error = new TransformerValidationError(errorMessage);
+            console.error('Transformer validation error:', error.stack || error.message);
+            throw error;
         }
 
-        // Input/output configuration validation
+        // Input configuration validation
         if (!Array.isArray(config.input) || config.input.length === 0) {
             throw new TransformerValidationError('At least one input configuration is required');
         }
         for (const input of config.input) {
             if (!input.name || typeof input.name !== 'string' || input.name.trim() === '') {
-                throw new TransformerValidationError('Input configuration name is required and cannot be empty');
+                throw new TransformerValidationError('Input name is required and cannot be empty');
+            }
+            if (!input.description || typeof input.description !== 'string') {
+                throw new TransformerValidationError('Input description is required');
+            }
+            if (typeof input.required !== 'boolean') {
+                throw new TransformerValidationError('Input required flag must be a boolean');
             }
         }
         
-        if (!Array.isArray(config.output) || config.output.length === 0) {
-            throw new TransformerValidationError('At least one output configuration is required');
-        }
-        for (const output of config.output) {
-            if (typeof output !== 'string' || output.trim() === '') {
-                throw new TransformerValidationError('Output configuration cannot be empty');
-            }
+        // Output validation
+        if (!config.output || typeof config.output !== 'string' || config.output.trim() === '') {
+            throw new TransformerValidationError('Output configuration is required and cannot be empty');
         }
 
-        // AI configs validation
-        if (config.aiConfigs && config.aiConfigs.length > 0) {
-            for (const aiConfig of config.aiConfigs) {
-                if (!aiConfig.model || !validModels.includes(aiConfig.model)) {
-                    throw new TransformerValidationError(`Invalid AI model in config: ${aiConfig.model}`);
-                }
-                if (typeof aiConfig.temperature !== 'string' || 
-                    isNaN(Number(aiConfig.temperature)) || 
-                    Number(aiConfig.temperature) < 0 || 
-                    Number(aiConfig.temperature) > 1) {
-                    throw new TransformerValidationError('AI config temperature must be a string number between 0 and 1');
-                }
-                if (typeof aiConfig.maxTokens !== 'number' || 
-                    aiConfig.maxTokens <= 0) {
-                    throw new TransformerValidationError('AI config maxTokens must be a positive number');
-                }
-            }
-        }
     }
 }

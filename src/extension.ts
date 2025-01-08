@@ -83,7 +83,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     aiModel: "gpt-4",
                     temperature: 0.7,
                     preserveStructure: true,
-                    namingConvention: "same",
+                    namingConvention: "original",
                     
                 };
                 await transformersProvider.addTransformer(newConfig);

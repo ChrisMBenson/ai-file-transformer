@@ -56,11 +56,9 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                 throw new Error('Invalid transformer config: missing or invalid name');
                             }
                             
-                            // Update the config structure to match the new TransformerConfig type
+                            // Update the config structure to match the TransformerConfig type
                             config.input = config.input || [];
-                            config.output = config.output || [];
-                            config.configs = config.configs || [];
-                            config.prompts = config.prompts || [];
+                            config.output = config.output || '';
                             
                             await this.transformerManager.updateTransformer(config);
                             console.log('Transformer updated, refreshing...');
@@ -199,14 +197,6 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                 <textarea id="descriptionInput" class="form-control"></textarea>
                             </div>
                             <div class="form-group">
-                                <label for="inputFilesInput">Input Files:</label>
-                                <input type="text" id="inputFilesInput" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label for="outputFolderInput">Output Folder:</label>
-                                <input type="text" id="outputFolderInput" class="form-control">
-                            </div>
-                            <div class="form-group">
                                 <label for="promptInput">Prompt:</label>
                                 <textarea id="promptInput" class="form-control"></textarea>
                             </div>
@@ -247,18 +237,18 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                     '<span class="field-label">Description:</span>' +
                                     '<span class="field-value">' + escapeHtml(currentConfig.description) + '</span>' +
                                     '</div>' +
-                                    '<div class="transformer-field">' +
-                                    '<span class="field-label">Input Files:</span>' +
-                                    '<span class="field-value">' + escapeHtml((currentConfig.input || []).map(i => i?.name || '').join(', ')) + '</span>' +
-                                    '</div>' +
-                                    '<div class="transformer-field">' +
-                                    '<span class="field-label">Output Folder:</span>' +
-                                    '<span class="field-value">' + escapeHtml((currentConfig.output || []).join(', ')) + '</span>' +
-                                    '</div>' +
-                                    '<div class="transformer-field">' +
-                                    '<span class="field-label">Prompt:</span>' +
-                                    '<pre>' + escapeHtml((currentConfig.prompts || []).map(p => p?.name || '').join(', ')) + '</pre>' +
-                                    '</div>' +
+                                '<div class="transformer-field">' +
+                                '<span class="field-label">Input:</span>' +
+                                '<span class="field-value">' + escapeHtml((currentConfig.input || []).map(i => i?.name || '').join(', ')) + '</span>' +
+                                '</div>' +
+                                '<div class="transformer-field">' +
+                                '<span class="field-label">Output:</span>' +
+                                '<span class="field-value">' + escapeHtml(currentConfig.output || '') + '</span>' +
+                                '</div>' +
+                                '<div class="transformer-field">' +
+                                '<span class="field-label">Prompt:</span>' +
+                                '<pre>' + escapeHtml(currentConfig.prompt || '') + '</pre>' +
+                                '</div>' +
                                     '<button id="editButton">Edit Transformer</button>';
                                 
                                 details.innerHTML = html;
@@ -272,8 +262,6 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                     // Populate form fields
                                     document.getElementById('nameInput').value = currentConfig.name;
                                     document.getElementById('descriptionInput').value = currentConfig.description;
-                                    document.getElementById('inputFilesInput').value = currentConfig.inputFiles;
-                                    document.getElementById('outputFolderInput').value = currentConfig.outputFolder;
                                     document.getElementById('promptInput').value = currentConfig.prompt;
                                 });
 
@@ -285,8 +273,6 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                     // Populate form fields
                                     document.getElementById('nameInput').value = currentConfig.name;
                                     document.getElementById('descriptionInput').value = currentConfig.description;
-                                    document.getElementById('inputFilesInput').value = currentConfig.inputFiles;
-                                    document.getElementById('outputFolderInput').value = currentConfig.outputFolder;
                                     document.getElementById('promptInput').value = currentConfig.prompt;
                                 }
                             } catch (e) {
@@ -329,10 +315,9 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             id: currentConfig.id,
                             name: name,
                             description: document.getElementById('descriptionInput').value,
-                                    input: currentConfig.input,
-                                    output: currentConfig.output,
-                                    configs: currentConfig.configs,
-                                    prompts: currentConfig.prompts
+                            prompt: document.getElementById('promptInput').value,
+                            input: currentConfig.input,
+                            output: currentConfig.output
                         };
                         
                         vscode.postMessage({

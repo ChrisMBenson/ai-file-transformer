@@ -6,9 +6,10 @@ import {
   TransformerValidationError
 } from '../types/errors';
 import type { TransformerConfig } from '../types';
+import type { ITransformerStorage } from '../types/storage';
 
   // Mock storage implementation
-  class MockStorage {
+  class MockStorage implements ITransformerStorage {
     private transformers = new Map<string, TransformerConfig>();
 
     constructor() {
@@ -31,6 +32,10 @@ import type { TransformerConfig } from '../types';
     clear(): void {
       this.transformers.clear();
     }
+
+    getBasePath(): string {
+      return '/mock/path';
+    }
   }
 
 describe('TransformerManager Behavior Tests', () => {
@@ -47,12 +52,7 @@ describe('TransformerManager Behavior Tests', () => {
       description: 'Test input',
       required: true
     }],
-    output: ['output.txt'],
-    configs: [],
-    prompts: [],
-    aiConfigs: [],
-    inputFiles: ['test.txt'],
-    outputFolder: './output',
+    output: 'output.txt',
     aiModel: 'gpt-4',
     temperature: 0.7,
     preserveStructure: true,
@@ -233,22 +233,6 @@ describe('TransformerManager Behavior Tests', () => {
   });
 
   describe('File Handling Tests', () => {
-    it('should validate input file patterns', async () => {
-      const invalidConfig = { ...baseConfig, inputFiles: ['invalid[pattern'] };
-      await assert.rejects(
-        () => manager.createTransformer(invalidConfig),
-        TransformerValidationError
-      );
-    });
-
-    it('should validate output folder path', async () => {
-      const invalidConfig = { ...baseConfig, outputFolder: '/invalid/path' };
-      await assert.rejects(
-        () => manager.createTransformer(invalidConfig),
-        TransformerValidationError
-      );
-    });
-
     it('should validate naming convention', async () => {
       const invalidConfig = { ...baseConfig, namingConvention: 'invalid' };
       await assert.rejects(
@@ -269,7 +253,7 @@ describe('TransformerManager Behavior Tests', () => {
 
     it('should validate input/output configuration', async () => {
       const invalidInput = { ...baseConfig, input: [] };
-      const invalidOutput = { ...baseConfig, output: [] };
+      const invalidOutput = { ...baseConfig, output: '' };
       
       await assert.rejects(
         () => manager.createTransformer(invalidInput),
@@ -285,52 +269,31 @@ describe('TransformerManager Behavior Tests', () => {
       // Test invalid model
       const invalidModel = { 
         ...baseConfig, 
-        aiConfigs: [{
-          model: 'invalid',
-          temperature: '0.7',
-          maxTokens: 1000
-        }]
+        aiModel: 'invalid-model'
       };
       await assert.rejects(
         () => manager.createTransformer(invalidModel),
         TransformerValidationError
       );
 
-      // Test invalid temperature string
+      // Test invalid temperature
       const invalidTemp = { 
         ...baseConfig, 
-        aiConfigs: [{
-          model: 'gpt-4',
-          temperature: 'invalid',
-          maxTokens: 1000
-        }]
+        temperature: 2.0
       };
       await assert.rejects(
         () => manager.createTransformer(invalidTemp),
         TransformerValidationError
       );
 
-      // Test invalid maxTokens
-      const invalidTokens = { 
+      // Test valid config
+      const validConfig = { 
         ...baseConfig, 
-        aiConfigs: [{
-          model: 'gpt-4',
-          temperature: '0.7',
-          maxTokens: -100
-        }]
-      };
-      await assert.rejects(
-        () => manager.createTransformer(invalidTokens),
-        TransformerValidationError
-      );
-
-      // Test empty AI configs array
-      const emptyConfigs = { 
-        ...baseConfig, 
-        aiConfigs: []
+        aiModel: 'gpt-4',
+        temperature: 0.7
       };
       await assert.doesNotReject(
-        () => manager.createTransformer(emptyConfigs)
+        () => manager.createTransformer(validConfig)
       );
     });
 
@@ -352,7 +315,7 @@ describe('TransformerManager Behavior Tests', () => {
       // Test invalid output array element
       const invalidOutput = { 
         ...baseConfig, 
-        output: [''] 
+        output: '' 
       };
       await assert.rejects(
         () => manager.createTransformer(invalidOutput),

@@ -7,8 +7,8 @@ export function executeTransformers(config: TransformerConfig) {
   outputChannel.appendLine(`Starting transformer execution for "${config.name}"...`);
   
   try {
-    outputChannel.appendLine(`Input Files: ${config.inputFiles}`);
-    outputChannel.appendLine(`Output Folder: ${config.outputFolder}`);
+    outputChannel.appendLine(`Input: ${config.input.map(i => i.name).join(', ')}`);
+    outputChannel.appendLine(`Output: ${config.output}`);
     outputChannel.appendLine(`AI Model: ${config.aiModel}`);
     // TODO: Add actual transformer execution logic here
     outputChannel.appendLine("Transformer execution completed successfully.");

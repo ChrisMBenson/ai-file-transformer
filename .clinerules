@@ -1,0 +1,1 @@
+When making changes, always finish by running npm run compile and check for issues.  Also run npm test.

@@ -10,10 +10,10 @@ export class TransformerTreeItem extends vscode.TreeItem {
         public readonly config: TransformerConfig
     ) {
         super(label, collapsibleState);
-        this.tooltip = `${description}\nInput: ${config.inputFiles}\nOutput: ${config.outputFolder}`;
+        this.tooltip = `${description}\nInput: ${config.input.map(i => i.name).join(', ')}\nOutput: ${config.output}`;
         this.description = description;
         this.contextValue = 'transformer';
-        this.iconPath = new vscode.ThemeIcon('testing-run-all-icon');
+        this.iconPath = new vscode.ThemeIcon('file-code');
         this.command = {
             command: 'treeTransformer.selectItem',
             title: 'Select Transformer',
