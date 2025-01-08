@@ -77,7 +77,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     description: "Description",
                     prompt: "Transform the input files according to the following requirements:",
                     input: [
-                        { name: "inputfile.txt", description: "Input file", required: true }
+                        { name: "inputfile.txt", description: "Input file", type:'input', value:'content', required: true }
                     ],
                     output: "outputfolder/",
                     aiModel: "gpt-4",

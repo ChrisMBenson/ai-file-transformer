@@ -51,6 +51,8 @@ suite('ViewEditTransformer Tests', () => {
     input: [{
       name: 'test-input',
       description: 'Test input',
+      type: 'input',
+      value: 'Content',
       required: true
     }],
     output: 'output.txt',

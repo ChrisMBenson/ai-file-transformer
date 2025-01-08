@@ -113,6 +113,10 @@
         "command": "ai-file-transformer.openSettings",
         "title": "Open Settings",
         "icon": "$(gear)"
+      },
+      {
+        "command": "extension.openFileBrowser",
+        "title": "Open File Browser"
       }
     ],
     "menus": {

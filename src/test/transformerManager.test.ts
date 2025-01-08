@@ -50,6 +50,8 @@ suite('TransformerManager Behavior Tests', () => {
     input: [{
       name: 'test-input',
       description: 'Test input',
+      value: 'Content',
+      type: 'input',
       required: true
     }],
     output: 'output.txt',
@@ -305,6 +307,8 @@ suite('TransformerManager Behavior Tests', () => {
         input: [{
           name: '',
           description: 'Test',
+          type: 'input',
+          value: 'Content',
           required: true
         }]
       };

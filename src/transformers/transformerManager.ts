@@ -40,28 +40,32 @@ export class TransformerManager {
      */
     public async loadTransformers(): Promise<void> {
         try {
-            if (process.env.TEST) {
-                // In test mode, just load from storage without adding test data
-                const stored = await this.storage.loadTransformers();
+            const stored = await this.storage.loadTransformers();
+            if (stored.size > 0) {
+                // Load from storage if available
                 this.transformers = new Map(stored);
             } else {
-                // Load from filesystem
-                const fs = require('fs');
-                const path = require('path');
+                if (!process.env.TEST) {
+                    // Load from filesystem
+                    const fs = require('fs');
+                    const path = require('path');
 
-                const transformerListPath = path.join(this.storage.getBasePath(), 'src/transformerList/transformerList.json');
-                const transformerListData = fs.readFileSync(transformerListPath, 'utf-8');
-                const transformerList = JSON.parse(transformerListData);
+                    const transformerListPath = path.join(this.storage.getBasePath(), 'src/transformerList/transformerList.json');
+                    const transformerListData = fs.readFileSync(transformerListPath, 'utf-8');
+                    const transformerList = JSON.parse(transformerListData);
 
-                for (const transformer of transformerList.transformers) {
-                    const configPath = path.join(this.storage.getBasePath(), `src/transformerList/${transformer.folder}/_config.json`);
-                    const configData = fs.readFileSync(configPath, 'utf-8');
-                    const config = JSON.parse(configData) as TransformerConfig;
-                    this.transformers.set(config.id, config);
+                    for (const transformer of transformerList.transformers) {
+                        const configPath = path.join(this.storage.getBasePath(), `src/transformerList/${transformer.folder}/_config.json`);
+                        const configData = fs.readFileSync(configPath, 'utf-8');
+                        const config = JSON.parse(configData) as TransformerConfig;
+                        this.transformers.set(config.id, config);
+                    }
+
+                    await this.saveTransformers();
                 }
-
-                await this.saveTransformers();
             }
+
+            console.log('Loaded transformers:', Array.from(this.transformers.values()));
         } catch (error) {
             if (error instanceof Error) {
                 console.error('Error loading transformers:', error.stack || error.message);

@@ -3,6 +3,8 @@
 interface Input {
     name: string;
     description: string;
+    type: string;
+    value: string;
     required: boolean;
 }
 

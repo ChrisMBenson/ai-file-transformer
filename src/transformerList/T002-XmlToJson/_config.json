@@ -1,8 +1,8 @@
 {
-    "id": "T001", 
-    "name": "JsonToXml",
-    "description": "Converts JSON to XML",    
-    "prompt": "Convert the following JSON content into well-formatted XML. Preserve all data structures and attributes. Ensure the XML is valid and properly nested.",
+    "id": "T002", 
+    "name": "XmlToJson",
+    "description": "Converts XML to JSON",    
+    "prompt": "Convert the following XML content into well-formatted JSON. Preserve all data structures and attributes. Ensure the JSON is valid and properly nested.",
     "input": [
         {
             "name": "File or Folder Path",
