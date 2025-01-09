@@ -10,6 +10,8 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
 
     private transformerManager: TransformerManager;
     private transformersProvider: TransformersProvider;
+    private inputFilePath?: string;
+    private outputFolderPath?: string;
 
     constructor(
         private readonly extensionUri: vscode.Uri,
@@ -67,8 +69,20 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                         const fileUri = await vscode.window.showOpenDialog(options);
                         if (fileUri && fileUri[0]) {
                             const filePath = fileUri[0].fsPath;
+                            if (message.output) {
+                                this.outputFolderPath = filePath;
+                            } else {
+                                this.inputFilePath = filePath;
+                            }
                             console.log('Message :', JSON.stringify(message));
-                            webviewView.webview.postMessage({ command: 'selectedFile', filePath: filePath, inputName: message.inputName, output: message.output });
+                            webviewView.webview.postMessage({ 
+                                command: 'selectedFile', 
+                                filePath: filePath, 
+                                inputName: message.inputName, 
+                                output: message.output,
+                                currentInputPath: this.inputFilePath,
+                                currentOutputPath: this.outputFolderPath
+                            });
                         }
                         break;
                     case 'save':

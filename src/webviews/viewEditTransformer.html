@@ -411,6 +411,8 @@
                         command: 'save',
                         data: JSON.stringify(updatedConfig)
                     });
+
+                    currentConfig = updatedConfig
                 }
                 else {
                     const outputField = document.querySelector('.browse-output-field');
@@ -418,13 +420,18 @@
                         outputField.value = message.filePath; // Update the output box with the selected file path
                         const updatedConfig = {
                             ...currentConfig,
-                            output: message.filePath
+                            output: message.filePath,
+                            input: currentConfig.input.map(i => ({
+                                ...i,
+                                value: message.currentInputPath || i.value
+                            }))
                         };
 
                         vscode.postMessage({
                             command: 'save',
                             data: JSON.stringify(updatedConfig)
                         });
+                        currentConfig = updatedConfig
                     }
                 }
             }
