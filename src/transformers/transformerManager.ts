@@ -40,28 +40,32 @@ export class TransformerManager {
      */
     public async loadTransformers(): Promise<void> {
         try {
-            if (process.env.TEST) {
-                // In test mode, just load from storage without adding test data
-                const stored = await this.storage.loadTransformers();
+            const stored = await this.storage.loadTransformers();
+            if (stored.size > 0) {
+                // Load from storage if available
                 this.transformers = new Map(stored);
             } else {
-                // Load from filesystem
-                const fs = require('fs');
-                const path = require('path');
+                if (!process.env.TEST) {
+                    // Load from filesystem
+                    const fs = require('fs');
+                    const path = require('path');
 
-                const transformerListPath = path.join(this.storage.getBasePath(), 'src/transformerList/transformerList.json');
-                const transformerListData = fs.readFileSync(transformerListPath, 'utf-8');
-                const transformerList = JSON.parse(transformerListData);
+                    const transformerLibraryPath = path.join(this.storage.getBasePath(), 'src/transformerLibrary/transformerLibrary.json');
+                    const transformerLibraryData = fs.readFileSync(transformerLibraryPath, 'utf-8');
+                    const transformerLibrary = JSON.parse(transformerLibraryData);
 
-                for (const transformer of transformerList.transformers) {
-                    const configPath = path.join(this.storage.getBasePath(), `src/transformerList/${transformer.folder}/_config.json`);
-                    const configData = fs.readFileSync(configPath, 'utf-8');
-                    const config = JSON.parse(configData) as TransformerConfig;
-                    this.transformers.set(config.id, config);
+                    for (const transformer of transformerLibrary.transformers) {
+                        const configPath = path.join(this.storage.getBasePath(), `src/transformerLibrary/${transformer.folder}/_config.json`);
+                        const configData = fs.readFileSync(configPath, 'utf-8');
+                        const config = JSON.parse(configData) as TransformerConfig;
+                        this.transformers.set(config.id, config);
+                    }
+
+                    await this.saveTransformers();
                 }
-
-                await this.saveTransformers();
             }
+
+            console.log('Loaded transformers:', Array.from(this.transformers.values()));
         } catch (error) {
             if (error instanceof Error) {
                 console.error('Error loading transformers:', error.stack || error.message);
@@ -184,7 +188,7 @@ export class TransformerManager {
         }
 
         // AI Model validation
-        const validModels = ['gpt-4', 'gpt-3.5-turbo'];
+        const validModels = ['gpt-4o'];
         if (!validModels.includes(config.aiModel)) {
             throw new TransformerValidationError(`Invalid AI model: ${config.aiModel}`);
         }
@@ -202,7 +206,7 @@ export class TransformerManager {
         }
 
         // Naming convention validation
-        const validNamingConventions = ['original', 'timestamp', 'uuid'];
+        const validNamingConventions = ['camelCase', 'snake_case'];
         if (!validNamingConventions.includes(config.namingConvention)) {
             const errorMessage = `Invalid naming convention: "${config.namingConvention}". Valid options are: ${validNamingConventions.join(', ')}`;
             const error = new TransformerValidationError(errorMessage);
