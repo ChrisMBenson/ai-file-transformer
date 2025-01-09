@@ -7,7 +7,7 @@ import { TransformerConfig } from '../../types';
 export interface BaseExecuter {
     // Configuration Methods
     getInputFileBrowserOption(config: TransformerConfig): vscode.OpenDialogOptions;
-    getOutputFileName(config: TransformerConfig): string;
+    getOutputFileName(config: TransformerConfig, inputFilePath: string): string;
     getOutputFileExtension(config: TransformerConfig): string;
 
     // Input Handling Methods
@@ -33,7 +33,7 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
     getInputFileBrowserOption(config: TransformerConfig): vscode.OpenDialogOptions {
         return {
             canSelectFiles: true,
-            canSelectFolders: false,
+            canSelectFolders: true,
             canSelectMany: false,
             openLabel: 'Select Input File',
             filters: {
@@ -46,8 +46,9 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
      * Provides the output file name based on the configuration.
      * Override this method in derived classes to customize the behaviour.
      */
-    getOutputFileName(config: TransformerConfig): string {
-        return ''; // Default file name
+    getOutputFileName(config: TransformerConfig, inputFilePath: string): string {
+        const inputFileNameWithoutExtension = path.basename(inputFilePath, path.extname(inputFilePath));
+        return inputFileNameWithoutExtension + this.getOutputFileExtension(config);
     }
 
     /**
@@ -55,7 +56,7 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
      * Override this method in derived classes to customize the behaviour.
      */
     getOutputFileExtension(config: TransformerConfig): string {
-        return '.txt'; // Default file extension
+        return config.outputFileExtension || ".txt"; // Default file extension
     }
 
     /**
@@ -109,30 +110,52 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
     
         for (const input of config.input) {
             try {
-                const inputData = fs.readFileSync(input.value, 'utf-8');
-    
-                if (!this.validateInput(config)) {
-                    vscode.window.showErrorMessage(`Invalid input: ${input.value}`);
-                    continue;
+                const inputStats = fs.statSync(input.value);
+        
+                if (inputStats.isDirectory()) {
+                    const files = fs.readdirSync(input.value).filter(file => {
+                        const filePath = path.join(input.value, file);
+                        return fs.statSync(filePath).isFile();
+                    });
+        
+                    for (const file of files) {
+                        const filePath = path.join(input.value, file);
+                        await this.processFile.call(this, filePath, config, outputFileExtension, outputFolderUri, outputFileUris);
+                    }
+                } else {
+                    await this.processFile.call(this, input.value, config, outputFileExtension, outputFolderUri, outputFileUris);
                 }
-    
-                const processedData = this.preProcessInput(inputData);
-                const message = this.generateUserMessage(config, processedData);
-                const response = await this.sendToLLM(message);
-    
-                const inputFileNameWithoutExtension = path.basename(input.value, path.extname(input.value));
-                const outputFileName = `${inputFileNameWithoutExtension}${outputFileExtension}`;
-                const outputFileUri = vscode.Uri.joinPath(outputFolderUri, outputFileName);
-    
-                await this.writeOutput(response, outputFileUri, config);
-                outputFileUris.push(outputFileUri.path);
             } catch (error) {
-                vscode.window.showErrorMessage(`Error processing file ${input.value}: ${error instanceof Error ? error.message : String(error)}`);
+                vscode.window.showErrorMessage(`Error processing input ${input.value}: ${error instanceof Error ? error.message : String(error)}`);
             }
         }
+        
     
         vscode.window.showInformationMessage('Transformation complete.');
         return outputFileUris;
+    }
+
+    async processFile(filePath: string, config: TransformerConfig, outputFileExtension: string, outputFolderUri: vscode.Uri, outputFileUris: string[]) {
+        try {
+            const inputData = fs.readFileSync(filePath, 'utf-8');
+    
+            if (!this.validateInput(config)) {
+                vscode.window.showErrorMessage(`Invalid input: ${filePath}`);
+                return;
+            }
+    
+            const processedData = this.preProcessInput(inputData);
+            const message = this.generateUserMessage(config, processedData);
+            const response = await this.sendToLLM(message);
+
+            const outputFileName = this.getOutputFileName(config, filePath);
+            const outputFileUri = vscode.Uri.joinPath(outputFolderUri, outputFileName);
+    
+            await this.writeOutput(response, outputFileUri, config);
+            outputFileUris.push(outputFileUri.path);
+        } catch (error) {
+            vscode.window.showErrorMessage(`Error processing file ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
+        }
     }
     
 
