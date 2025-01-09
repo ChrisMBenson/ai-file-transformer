@@ -116,8 +116,9 @@
     <div class="container">
         <div class="section">
             <h3>AI File Transformer</h3>
-            <p>Select a transformer from the tree to edit its details here.</p>
+            <hr>
             <div id="transformerDetails">
+                <p>Select a transformer from the tree to edit its details here.</p>
                 <p>No transformer selected.</p>
             </div>
             <div id="editControls" style="display: none;">
@@ -135,16 +136,44 @@
                     <textarea id="promptInput" class="form-control"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="aiModelInput">AI Model:</label>
-                    <input type="text" id="aiModelInput" class="form-control">
+                    <label for="aiModelInput">AI Model</label>
+                    <select id="aiModelInput" class="form-control">
+                        <option value="gpt-4o">GPT-4o</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="temperatureInput">Temperature:</label>
                     <input type="number" id="temperatureInput" class="form-control" min="0" max="1" step="0.1">
                 </div>
                 <div class="form-group">
+                    <label for="maxTokenInput">Max Tokens:</label>
+                    <input type="number" id="maxTokenInput" class="form-control" min="1000" max="30000" step="1000">
+                </div>
+                <div class="form-group">
                     <label for="preserveStructureInput">Preserve Structure:</label>
                     <input type="checkbox" id="preserveStructureInput" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="processFormatInput">Process Format:</label>
+                    <div id="processFormatInput" class="form-control">
+                        <div class="form-check">
+                            <input type="radio" id="eachFileOption" name="processFormat" class="form-check-input" value="eachFile">
+                            <label class="form-check-label" for="eachFileOption">Each File</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" id="joinFilesOption" name="processFormat" class="form-check-input" value="joinFiles">
+                            <label class="form-check-label" for="joinFilesOption">Join Files</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="outputFileExtensionInput">Output File Extension</label>
+                    <select id="outputFileExtensionInput" class="form-control">
+                        <option value=".txt">.txt</option>
+                        <option value=".md">.md</option>
+                        <option value=".json">.json</option>
+                        <option value=".xml">.xml</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="namingConventionInput">Naming Convention:</label>
@@ -243,26 +272,38 @@
                         });
                     });
 
+                    function showEditForm() {
+                        details.style.display = 'none';
+                        editControls.style.display = 'block';
+
+                        // Populate form fields
+                        document.getElementById('nameInput').value = currentConfig.name;
+                        document.getElementById('descriptionInput').value = currentConfig.description;
+                        document.getElementById('promptInput').value = currentConfig.prompt;
+                        
+                        // Set AI model selection
+                        const aiModelSelect = document.getElementById('aiModelInput');
+                        if (aiModelSelect) {
+                            aiModelSelect.value = currentConfig.aiModel;
+                            if (!Array.from(aiModelSelect.options).some(opt => opt.value === currentConfig.aiModel)) {
+                                aiModelSelect.value = ''; // Reset if invalid value
+                            }
+                        }
+
+                        document.getElementById('temperatureInput').value = currentConfig.temperature;
+                        document.getElementById('maxTokenInput').value = currentConfig.maxTokens;
+                        document.getElementById('preserveStructureInput').checked = currentConfig.preserveStructure;
+                        document.querySelector(`input[name="processFormat"][value="${currentConfig.processFormat}"]`).checked = true;
+                        document.getElementById('namingConventionInput').value = currentConfig.namingConvention;
+                        document.getElementById('outputFileExtensionInput').value = currentConfig.outputFileExtension;
+                    }
+
                     // Set up edit button
-                    document.getElementById('editButton')?.addEventListener('click', () => {
-                        details.style.display = 'none';
-                        editControls.style.display = 'block';
+                    document.getElementById('editButton')?.addEventListener('click', showEditForm);
 
-                        // Populate form fields
-                        document.getElementById('nameInput').value = currentConfig.name;
-                        document.getElementById('descriptionInput').value = currentConfig.description;
-                        document.getElementById('promptInput').value = currentConfig.prompt;
-                    });
-
-                    // If showEditForm is true, automatically click the edit button
+                    // If showEditForm is true, automatically show the form
                     if (message.showEditForm) {
-                        details.style.display = 'none';
-                        editControls.style.display = 'block';
-
-                        // Populate form fields
-                        document.getElementById('nameInput').value = currentConfig.name;
-                        document.getElementById('descriptionInput').value = currentConfig.description;
-                        document.getElementById('promptInput').value = currentConfig.prompt;
+                        showEditForm();
                     }
                 } catch (e) {
                     const errorMessage = e instanceof Error ? e.message : String(e);
@@ -275,7 +316,7 @@
                 }
             } else if (message.command === 'selectedFile') {
                 const inputField = document.querySelector('.browse-input-field');
-                if (inputField) {
+                if (!message.output) {
                     inputField.value = message.filePath; // Update the input box with the selected file path
                     console.log(message.inputName, message.filePath);
                     const updatedInput = currentConfig.input.map(i => {
@@ -300,7 +341,7 @@
                         data: JSON.stringify(updatedConfig)
                     });
                 }
-                if (message.output) {
+                else {
                     const outputField = document.querySelector('.browse-output-field');
                     if (outputField) {
                         outputField.value = message.filePath; // Update the output box with the selected file path
@@ -348,7 +389,15 @@
                 description: document.getElementById('descriptionInput').value,
                 prompt: document.getElementById('promptInput').value,
                 input: currentConfig.input,
-                output: currentConfig.output
+                output: currentConfig.output,
+                outputFileExtension: document.getElementById('outputFileExtensionInput').value,
+                aiModel: document.getElementById('aiModelInput').value,
+                temperature: parseFloat(document.getElementById('temperatureInput').value),
+                maxTokens: parseInt(document.getElementById('maxTokenInput').value),
+                preserveStructure: document.getElementById('preserveStructureInput').checked,
+                processFormat: document.querySelector('input[name="processFormat"]:checked').value,
+                namingConvention: document.getElementById('namingConventionInput').value
+
             };
 
             vscode.postMessage({

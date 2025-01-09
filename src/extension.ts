@@ -74,17 +74,25 @@ export async function activate(context: vscode.ExtensionContext) {
                 const newConfig: TransformerConfig = {
                     id: uuidv4(),
                     name: "New Transformer",
-                    description: "Description",
+                    description: "Provide Description",
                     prompt: "Transform the input files according to the following requirements:",
                     input: [
-                        { name: "inputfile.txt", description: "Input file", type:'input', value:'content', required: true }
+                        { 
+                            name: "inputfile.txt",
+                            description: "Input file", 
+                            type:'input', 
+                            value:'/', 
+                            required: true 
+                        }
                     ],
                     output: "outputfolder/",
-                    aiModel: "gpt-4",
+                    outputFileExtension: ".txt",
+                    aiModel: "gpt-4o",
                     temperature: 0.7,
+                    maxTokens: 1000,
                     preserveStructure: true,
-                    namingConvention: "original",
-                    
+                    processFormat: "eachFile",
+                    namingConvention: "camelCase",
                 };
                 await transformersProvider.addTransformer(newConfig);
                 viewEditTransformerProvider.updateContent(newConfig);

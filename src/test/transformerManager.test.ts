@@ -54,11 +54,14 @@ suite('TransformerManager Behavior Tests', () => {
       type: 'input',
       required: true
     }],
-    output: 'output.txt',
-    aiModel: 'gpt-4',
+    output: "outputfolder/",
+    outputFileExtension: ".txt",
+    aiModel: "gpt-4o",
     temperature: 0.7,
+    maxTokens: 1000,
     preserveStructure: true,
-    namingConvention: 'original'
+    processFormat: "eachFile",
+    namingConvention: "camelCase",
   };
 
   suiteSetup(() => {
@@ -292,7 +295,7 @@ suite('TransformerManager Behavior Tests', () => {
       // Test valid config
       const validConfig = { 
         ...baseConfig, 
-        aiModel: 'gpt-4',
+        aiModel: 'gpt-4o',
         temperature: 0.7
       };
       await assert.doesNotReject(

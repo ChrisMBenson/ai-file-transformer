@@ -188,7 +188,7 @@ export class TransformerManager {
         }
 
         // AI Model validation
-        const validModels = ['gpt-4', 'gpt-3.5-turbo'];
+        const validModels = ['gpt-4o'];
         if (!validModels.includes(config.aiModel)) {
             throw new TransformerValidationError(`Invalid AI model: ${config.aiModel}`);
         }
@@ -206,7 +206,7 @@ export class TransformerManager {
         }
 
         // Naming convention validation
-        const validNamingConventions = ['original', 'timestamp', 'uuid'];
+        const validNamingConventions = ['camelCase', 'snake_case'];
         if (!validNamingConventions.includes(config.namingConvention)) {
             const errorMessage = `Invalid naming convention: "${config.namingConvention}". Valid options are: ${validNamingConventions.join(', ')}`;
             const error = new TransformerValidationError(errorMessage);

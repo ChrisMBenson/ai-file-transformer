@@ -12,9 +12,12 @@
             "required": true
         }
     ],
-    "output": "File",
-    "aiModel": "gpt-3.5-turbo",
-    "temperature" : 0.5,
+    "output": "/",
+    "outputFileExtension": ".txt",
+    "aiModel": "gpt-4o",
+    "temperature": 0.7,
+    "maxTokens": 1000,
     "preserveStructure": true,
-    "namingConvention": "original"
+    "processFormat": "eachFile",
+    "namingConvention": "camelCase"
 }

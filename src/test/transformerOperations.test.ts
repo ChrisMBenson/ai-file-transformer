@@ -18,11 +18,14 @@ suite('Transformer Operations Test Suite', () => {
       description: 'Test description',
       prompt: 'Test prompt',
       input: [],
-      output: '',
-      aiModel: 'gpt-3.5-turbo',
+      output: "outputfolder/",
+      outputFileExtension: ".txt",
+      aiModel: "gpt-4o",
       temperature: 0.7,
-      preserveStructure: false,
-      namingConvention: 'camelCase'
+      maxTokens: 1000,
+      preserveStructure: true,
+      processFormat: "eachFile",
+      namingConvention: "camelCase",
     });
 
     // View the transformer
@@ -40,11 +43,14 @@ suite('Transformer Operations Test Suite', () => {
       description: 'Initial Description',
       prompt: 'Initial Prompt',
       input: [],
-      output: '',
-      aiModel: 'gpt-3.5-turbo',
+      output: "outputfolder/",
+      outputFileExtension: ".txt",
+      aiModel: "gpt-4o",
       temperature: 0.7,
-      preserveStructure: false,
-      namingConvention: 'camelCase'
+      maxTokens: 1000,
+      preserveStructure: true,
+      processFormat: "eachFile",
+      namingConvention: "camelCase",
     });
 
     // Edit the transformer
@@ -72,11 +78,14 @@ suite('Transformer Operations Test Suite', () => {
       description: 'Test description',
       prompt: 'Test prompt',
       input: [],
-      output: '',
-      aiModel: 'gpt-3.5-turbo',
+      output: "outputfolder/",
+      outputFileExtension: ".txt",
+      aiModel: "gpt-4o",
       temperature: 0.7,
-      preserveStructure: false,
-      namingConvention: 'camelCase'
+      maxTokens: 1000,
+      preserveStructure: true,
+      processFormat: "eachFile",
+      namingConvention: "camelCase",
     });
 
     // Delete the transformer
@@ -95,11 +104,14 @@ suite('Transformer Operations Test Suite', () => {
       description: 'Original description',
       prompt: 'Original prompt',
       input: [],
-      output: '',
-      aiModel: 'gpt-3.5-turbo',
+      output: "outputfolder/",
+      outputFileExtension: ".txt",
+      aiModel: "gpt-4o",
       temperature: 0.7,
-      preserveStructure: false,
-      namingConvention: 'camelCase'
+      maxTokens: 1000,
+      preserveStructure: true,
+      processFormat: "eachFile",
+      namingConvention: "camelCase",
     });
 
     // Duplicate the transformer
@@ -114,10 +126,10 @@ suite('Transformer Operations Test Suite', () => {
     assert.strictEqual(duplicate.name, 'Original Transformer (Copy)');
     assert.strictEqual(duplicate.description, 'Original description');
     assert.strictEqual(duplicate.prompt, 'Original prompt');
-    assert.strictEqual(duplicate.aiModel, 'gpt-3.5-turbo');
+    assert.strictEqual(duplicate.aiModel, 'gpt-4o');
     assert.strictEqual(duplicate.temperature, 0.7);
     assert.notStrictEqual(original.id, duplicate.id);
-    assert.strictEqual(duplicate.preserveStructure, false);
+    assert.strictEqual(duplicate.preserveStructure, true);
     assert.strictEqual(duplicate.namingConvention, 'camelCase');
   });
 });
