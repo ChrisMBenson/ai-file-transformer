@@ -19,6 +19,8 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
     ) {
         this.transformerManager = transformerManager;
         this.transformersProvider = transformersProvider;
+        this.extensionUri = extensionUri;
+        this.context = context;
     }
 
     public resolveWebviewView(
@@ -107,7 +109,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
     }
 
     private _getHtmlForWebview(webview: vscode.Webview): string {
-        const htmlFilePath = path.join(this.extensionUri.fsPath, 'src/webviews', 'viewEditTransformer.html');
+        const htmlFilePath = path.join(this.context.extensionUri.fsPath, 'media', 'viewEditTransformer.html');
         const htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
     
         const nonce = this._getNonce();

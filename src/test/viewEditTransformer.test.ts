@@ -5,6 +5,7 @@ import { TransformerManager } from '../transformers/transformerManager';
 import { TransformersProvider } from '../providers/TransformersProvider';
 import type { ITransformerStorage } from '../types/storage';
 import type { TransformerConfig } from '../types';
+import path from 'path';
 
 suite('ViewEditTransformer Tests', () => {
   let webview: ViewEditTransformer;
@@ -66,9 +67,11 @@ suite('ViewEditTransformer Tests', () => {
   };
 
   setup(async () => {
+    const extensionRoot = path.resolve(__dirname, '../'); 
+    
     // Mock the extension context
     extensionContext = {
-      extensionUri: vscode.Uri.file(__dirname),
+      extensionUri: vscode.Uri.file(extensionRoot),
       subscriptions: [],
       workspaceState: {
         get: () => undefined,
@@ -84,7 +87,7 @@ suite('ViewEditTransformer Tests', () => {
         store: () => Promise.resolve(),
         delete: () => Promise.resolve()
       },
-      extensionPath: __dirname,
+      extensionPath: extensionRoot,
       asAbsolutePath: (relativePath: string) => __dirname + '/' + relativePath,
       storagePath: __dirname + '/storage',
       globalStoragePath: __dirname + '/globalStorage',
