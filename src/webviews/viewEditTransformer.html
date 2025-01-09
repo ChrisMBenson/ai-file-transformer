@@ -28,6 +28,7 @@
             padding: 4px 12px;
             cursor: pointer;
             border-radius: 2px;
+            margin-top: 5px;
             font-size: var(--vscode-font-size);
         }
 
@@ -54,7 +55,27 @@
         }
 
         .form-group {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 8px;
+            align-items: center;
             margin-bottom: 12px;
+        }
+
+        .form-group label {
+            grid-column: 1;
+            margin-bottom: 0;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            grid-column: 2;
+        }
+
+        .form-check {
+            display: inline-block;
+            margin-right: 16px;
         }
 
         label {
@@ -82,19 +103,50 @@
         }
 
         .transformer-field {
-            margin: 8px 0;
+            margin-bottom: 16px;
+        }
+
+        .field-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
 
         .field-label {
             color: var(--vscode-foreground);
             font-weight: 600;
             font-size: var(--vscode-font-size);
+            min-width: 80px;
         }
 
         .field-value {
             color: var(--vscode-descriptionForeground);
-            margin-left: 8px;
             font-size: var(--vscode-font-size);
+            flex: 1;
+        }
+
+        .input-group {
+            margin-bottom: 8px;
+        }
+
+        .browse-input-field,
+        .browse-output-field {
+            flex: 1;
+        }
+
+        .prompt-pre {
+            margin-top: 8px;
+            padding: 12px;
+            background: var(--vscode-textBlockQuote-background);
+            border-radius: 4px;
+        }
+
+        .edit-button-container {
+            margin-top: 24px;
+        }
+
+        .full-width-button {
+            width: 100%;
         }
 
         h3,
@@ -219,17 +271,27 @@
 
                     const html =
                         '<div class="transformer-field">' +
+                        '<div class="field-row">' +
+                        '<span class="field-label">Id:</span>' +
+                        '<span class="field-value">' + escapeHtml(currentConfig.id) + '</span>' +
+                        '</div></div>' +
+                        
+                        '<div class="transformer-field">' +
+                        '<div class="field-row">' +
                         '<span class="field-label">Name:</span>' +
                         '<span class="field-value">' + escapeHtml(currentConfig.name) + '</span>' +
-                        '</div>' +
+                        '</div></div>' +
+                        
                         '<div class="transformer-field">' +
+                        '<div class="field-row">' +
                         '<span class="field-label">Description:</span>' +
                         '<span class="field-value">' + escapeHtml(currentConfig.description) + '</span>' +
-                        '</div>' +
+                        '</div></div>' +
+                        
                         '<div class="transformer-field">' +
+                        '<div class="field-row">' +
                         '<span class="field-label">Input:</span>' +
                         '<div class="field-value">' +
-                        '<div class="input-label">Inputs:</div>' +
                         (currentConfig.input && currentConfig.input.length > 0 ?
                             currentConfig.input.map(i =>
                                 '<div class="input-group">' +
@@ -240,22 +302,31 @@
                             ).join('') :
                             '<span>No inputs defined</span>'
                         ) +
-                        '</div>' +
-                        '</div>' +
+                        '</div></div></div>' +
+                        
                         '<div class="transformer-field">' +
+                        '<div class="field-row">' +
                         '<span class="field-label">Output:</span>' +
                         '<div class="field-value">' +
                         '<div class="input-group">' +
                         '<input class="browse-output-field" type="text" value="' + escapeHtml(currentConfig.output || '') + '" readonly>' +
                         '<button class="btn-primary browseOutputButton">Browse</button>' +
-                        '</div>' +
-                        '</div>' +
-                        '</div>' +
+                        '</div></div></div></div>' +
+                        
                         '<div class="transformer-field">' +
+                        '<div class="field-row">' +
                         '<span class="field-label">Prompt:</span>' +
-                        '<pre>' + escapeHtml(currentConfig.prompt || '') + '</pre>' +
-                        '</div>' +
-                        '<button id="editButton">Edit Transformer</button>';
+                        '<pre class="prompt-pre">' + 
+                        escapeHtml(currentConfig.prompt || '') + '</pre>' +
+                        '</div></div>' +
+                        
+                        '<div class="edit-button-container">' +
+                        '<button id="editButton" class="full-width-button">Edit Transformer</button>' +
+                        '</div>'+ 
+                        
+                        '<div class="Execute-button-container">' +
+                        '<button id="executeButton" class="full-width-button">Execute Transformer</button>' +
+                        '</div>';
 
 
                     details.innerHTML = html;

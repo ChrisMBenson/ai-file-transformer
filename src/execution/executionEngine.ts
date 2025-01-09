@@ -6,31 +6,36 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
+interface TransformerEntry {
+  id: string;     // Unique identifier for the transformer
+  name: string;   // Name of the transformer
+  folder: string; // Folder path where the transformer's script is located
+}
+
 /**
  * Retrieves the transformer entry for a given transformer name from the transformer library.
  * 
  * @param transformerName - The name of the transformer to be executed.
- * @returns The corresponding TransformerEntry object, which includes metadata like id, name, and folder.
- * @throws An error if the transformer name is not found in the library.
+ * @returns The corresponding TransformerEntry object or undefined if not found.
  */
-function getTransformerEntry(transformerName: string) {
-  interface TransformerEntry {
-    id: string;     // Unique identifier for the transformer
-    name: string;   // Name of the transformer
-    folder: string; // Folder path where the transformer's script is located
-  }
-
-  // Load the transformer library JSON containing all registered transformers
+function getTransformerEntry(transformerName: string): TransformerEntry | undefined {
   const transformerLibrary: { transformers: TransformerEntry[] } = require('../transformerLibrary/transformerLibrary.json');
 
-  // Find the entry that matches the transformer name
-  const transformerEntry = transformerLibrary.transformers.find(entry => entry.name === transformerName);
+  return transformerLibrary.transformers.find(entry => entry.name === transformerName);
+}
 
-  if (!transformerEntry) {
-    return undefined;
+/**
+ * Opens the specified file in VS Code.
+ * 
+ * @param filePath - The path of the file to open.
+ */
+async function openInVSCode(filePath: string): Promise<void> {
+  try {
+    const doc = await vscode.workspace.openTextDocument(filePath);
+    await vscode.window.showTextDocument(doc);
+  } catch (error) {
+    outputChannel.appendLine(`Failed to open file in VS Code: ${filePath}. Error: ${error}`);
   }
-
-  return transformerEntry;
 }
 
 /**
@@ -38,73 +43,48 @@ function getTransformerEntry(transformerName: string) {
  * 
  * @param config - The configuration object containing settings and parameters for the transformer.
  * @returns A promise that resolves when the transformer execution completes successfully or rejects on error.
- * 
- * This function performs the following:
- * 1. Displays and logs the start of the transformer execution process.
- * 2. Retrieves the transformer metadata from the transformer library.
- * 3. Loads the transformer's script using the `ExecuterLoader`.
- * 4. Executes the transformer with the given configuration.
- * 5. Logs success or failure messages to the output channel.
- * 6. Ensures the output channel logs process completion in all scenarios.
  */
 export async function executeTransformers(config: TransformerConfig): Promise<void> {
   const { name: transformerName } = config;
 
-  // Show the output channel and log the start of execution
   outputChannel.show(true);
   outputChannel.appendLine(`Starting transformer execution for "${transformerName}"...`);
 
   try {
-    // Step 1: Load the transformer metadata
     const transformerEntry = getTransformerEntry(transformerName);
 
-    // Step 2: Check if transformer folder exists
     let outputFiles: string[];
-    if (transformerEntry === undefined) {
-      outputChannel.appendLine(`Transformer folder not found. Using base executer.`);
+
+    if (!transformerEntry) {
+      outputChannel.appendLine(`Transformer folder not found. Using default executer.`);
       const executer = new DefaultExecuter();
-      outputChannel.appendLine(`Executing transformer "${transformerName}"...`);
       outputFiles = await executer.execute(config);
     } else {
       const scriptPath = path.resolve(__dirname, '../src/transformerLibrary', transformerEntry.folder);
       outputChannel.appendLine(`Loading transformer script from: ${scriptPath}`);
+
       const loader = new ExecuterLoader();
       const executer = await loader.loadExecuters(scriptPath);
-
-      outputChannel.appendLine(`Executing transformer "${transformerName}"...`);
       outputFiles = await executer.execute(config);
     }
 
-    /**
-     * Opens the specified file in VS Code.
-     */
-    function openInVSCode(filePath: string): void {
-        vscode.workspace.openTextDocument(filePath).then((doc: vscode.TextDocument) => {
-            vscode.window.showTextDocument(doc);
-        });
-    }
-    
-    // Log success
     outputChannel.appendLine(`Transformer "${transformerName}" executed successfully.`);
-    
-    // Open and log output files if any were generated
-    if (outputFiles && outputFiles.length > 0) {
+
+    if (outputFiles?.length) {
       outputChannel.appendLine(`Generated ${outputFiles.length} output file(s):`);
-      outputFiles.forEach((filePath: string) => {
-        openInVSCode(filePath);
+      for (const filePath of outputFiles) {
+        await openInVSCode(filePath);
         outputChannel.appendLine(`Opened file: ${filePath}`);
-      });
+      }
     } else {
       outputChannel.appendLine('No output files were generated by this transformer.');
     }
 
   } catch (error) {
-    // Handle and log errors
     const errorMessage = error instanceof Error ? error.message : String(error);
     outputChannel.appendLine(`Error executing transformer "${transformerName}": ${errorMessage}`);
     throw new Error(`Failed to execute transformer "${transformerName}": ${errorMessage}`);
   } finally {
-    // Ensure this message is logged in all scenarios
     outputChannel.appendLine("Transformer execution process completed.");
   }
 }
