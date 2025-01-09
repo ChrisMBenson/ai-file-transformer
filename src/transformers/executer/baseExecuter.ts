@@ -125,7 +125,7 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
                 const outputFileUri = vscode.Uri.joinPath(outputFolderUri, outputFileName);
     
                 await this.writeOutput(response, outputFileUri, config);
-                outputFileUris.push(outputFileUri.toString());
+                outputFileUris.push(outputFileUri.path);
             } catch (error) {
                 vscode.window.showErrorMessage(`Error processing file ${input.value}: ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -163,14 +163,5 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
             console.error('Error sending request to LLM:', error);
             return `Error sending request to LLM: ${error instanceof Error ? error.message : String(error)}`;
         }
-    }
-
-    /**
-     * Opens the specified file in VS Code.
-     */
-    openInVSCode(filePath: string): void {
-        vscode.workspace.openTextDocument(filePath).then((doc: vscode.TextDocument) => {
-            vscode.window.showTextDocument(doc);
-        });
     }
 }

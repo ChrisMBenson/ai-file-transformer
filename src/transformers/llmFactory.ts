@@ -27,12 +27,6 @@ abstract class LLMBase {
 
     abstract sendRequest(promptOrMessages: LLMMessage[] | string, options?: any): Promise<string>;
 
-    abstract sendRequestWithStructuredResponse(
-        promptOrMessages: LLMMessage[] | string,
-        responseFormat: string,
-        options?: any
-    ): Promise<any>;
-
     protected static getTimestamp(): { date: string; time: string } {
         const now = new Date();
         const date = now.toISOString().split('T')[0];
@@ -44,28 +38,6 @@ abstract class LLMBase {
         if (!fs.existsSync(directory)) {
             fs.mkdirSync(directory, { recursive: true });
         }
-    }
-
-    public logRequestResponse(
-        prompt: string | LLMMessage[],
-        response: string,
-        stepName: string,
-        folder = './responses'
-    ): void {
-        const { date, time } = LLMBase.getTimestamp();
-        const logDir = path.join(folder, stepName, date);
-        LLMBase.ensureDirectoryExists(logDir);
-
-        const requestFile = path.join(logDir, `${time}_req.txt`);
-        const responseFile = path.join(logDir, `${time}_res.txt`);
-
-        fs.writeFileSync(
-            requestFile,
-            typeof prompt === 'string' ? prompt : prompt.map((msg) => msg.content).join('\n'),
-            'utf-8'
-        );
-
-        fs.writeFileSync(responseFile, response, 'utf-8');
     }
 }
 
@@ -95,14 +67,6 @@ class OpenAIClient extends LLMBase {
         });
 
         return response.choices[0]?.message?.content || '';
-    }
-
-    async sendRequestWithStructuredResponse(
-        promptOrMessages: LLMMessage[] | string,
-        responseFormat: string,
-        options?: any
-    ): Promise<any> {
-        throw new Error('Structured response logic not implemented for OpenAI');
     }
 }
 
@@ -138,17 +102,5 @@ export class LLMClient {
 
     async sendRequest(promptOrMessages: LLMMessage[] | string, options?: any): Promise<string> {
         return this.client.sendRequest(promptOrMessages, options);
-    }
-
-    async sendRequestWithStructuredResponse(
-        promptOrMessages: LLMMessage[] | string,
-        responseFormat: string,
-        options?: any
-    ): Promise<any> {
-        return this.client.sendRequestWithStructuredResponse(promptOrMessages, responseFormat, options);
-    }
-
-    logRequestResponse(prompt: string | LLMMessage[], response: string, stepName: string): void {
-        this.client.logRequestResponse(prompt, response, stepName);
     }
 }

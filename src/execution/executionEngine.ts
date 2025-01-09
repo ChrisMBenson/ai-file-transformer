@@ -2,6 +2,7 @@ import { outputChannel } from '../extension';
 import { TransformerConfig } from '../types';
 import { ExecuterLoader } from "../transformers/executer/executerLoader";
 import * as path from 'path';
+import * as vscode from 'vscode';
 
 /**
  * Retrieves the transformer entry for a given transformer name from the transformer library.
@@ -63,10 +64,27 @@ export async function executeTransformers(config: TransformerConfig): Promise<vo
     const executer = await loader.loadExecuters(scriptPath);
 
     outputChannel.appendLine(`Executing transformer "${transformerName}"...`);
-    await executer.execute(config);
+    const outputFiles = await executer.execute(config);
 
+    /**
+     * Opens the specified file in VS Code.
+     */
+    function openInVSCode(filePath: string): void {
+        vscode.workspace.openTextDocument(filePath).then((doc: vscode.TextDocument) => {
+            vscode.window.showTextDocument(doc);
+        });
+    }
+    
     // Log success
+    outputChannel.appendLine(`Opened file: ${outputFiles[0]}`);
     outputChannel.appendLine(`Transformer "${transformerName}" executed successfully.`);
+    
+    // Open each output file in VS Code and print the file paths
+    outputFiles.forEach((filePath: string) => {
+        openInVSCode(filePath);
+        outputChannel.appendLine(`Opened file: ${filePath}`);
+    });
+
   } catch (error) {
     // Handle and log errors
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -77,3 +95,5 @@ export async function executeTransformers(config: TransformerConfig): Promise<vo
     outputChannel.appendLine("Transformer execution process completed.");
   }
 }
+
+
