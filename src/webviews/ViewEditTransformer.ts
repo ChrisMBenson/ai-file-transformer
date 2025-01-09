@@ -65,7 +65,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             options.openLabel = 'Select Folder';
                         } else {
                             options.canSelectFiles = true;
-                            options.canSelectFolders = false;
+                            options.canSelectFolders = true;
                         }
 
                         const fileUri = await vscode.window.showOpenDialog(options);
