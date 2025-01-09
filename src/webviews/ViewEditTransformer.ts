@@ -38,6 +38,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
 
             // Handle messages from the webview
             webviewView.webview.onDidReceiveMessage(async (message) => {
+                console.log(message);
                 switch (message.command) {
                     case 'alert':
                         vscode.window.showInformationMessage(message.text);

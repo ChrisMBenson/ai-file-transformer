@@ -236,7 +236,7 @@
                                 vscode.postMessage({ command: 'openFileDialog', output: true });
                             });
 
-                    document.querySelectorAll('.browseInputButton, .browseOutputButton').forEach(button => {
+                    document.querySelectorAll('.browseInputButton').forEach(button => {
                         button.addEventListener('click', () => {
                             const inputName = button.getAttribute('data-input-name');
                             vscode.postMessage({ command: 'openFileDialog', inputName });
