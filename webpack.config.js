@@ -46,8 +46,8 @@ const extensionConfig = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: path.resolve(__dirname, 'media', '*.html'),
-          to: path.resolve(__dirname, 'out', 'media', '[name][ext]')
+          from: path.resolve(__dirname, 'media'),
+          to: path.resolve(__dirname, 'out', 'media')
         }
       ]
     })

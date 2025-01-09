@@ -10,7 +10,7 @@ export class ExecuterLoader {
         if (!this.executers.has(transformerId)) {
             try {
                 // Dynamically import the transformer script
-                const module = await import(`../../transformerLibrary/${transformerId}/_script`);
+                const module = await import(`../../media/transformerLibrary/${transformerId}/_script`);
                 
                 // Assert that the default export is a constructable class
                 const ExecuterClass = module.default as { new (): BaseExecuter };

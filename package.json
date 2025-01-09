@@ -1,19 +1,24 @@
 {
   "name": "ai-file-transformer",
   "displayName": "AI File Transformer",
-  "description": "",
+  "description": "Tool for transforming files into different formats using AI",
   "version": "0.0.1",
+  "publisher": "AIStudio",
   "repository": {
     "type": "git",
     "url": "https://github.com/leewsimpson/ai-file-transformer.git"
   },
   "engines": {
-    "vscode": "^1.1.37"
+    "vscode": "^1.96.0"
   },
   "categories": [
     "Other"
   ],
   "main": "./dist/extension.js",
+  "activationEvents": [
+    "onView:treeTransformer",
+    "onView:viewEditTransformer"
+  ],  
   "contributes": {
     "configuration": {
       "title": "AI File Transformer",

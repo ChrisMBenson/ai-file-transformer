@@ -50,12 +50,12 @@ export class TransformerManager {
                     const fs = require('fs');
                     const path = require('path');
 
-                    const transformerLibraryPath = path.join(this.storage.getBasePath(), 'src/transformerLibrary/transformerLibrary.json');
+                    const transformerLibraryPath = path.join(this.storage.getBasePath(), 'media/transformerLibrary/transformerLibrary.json');
                     const transformerLibraryData = fs.readFileSync(transformerLibraryPath, 'utf-8');
                     const transformerLibrary = JSON.parse(transformerLibraryData);
 
                     for (const transformer of transformerLibrary.transformers) {
-                        const configPath = path.join(this.storage.getBasePath(), `src/transformerLibrary/${transformer.folder}/_config.json`);
+                        const configPath = path.join(this.storage.getBasePath(), `media/transformerLibrary/${transformer.folder}/_config.json`);
                         const configData = fs.readFileSync(configPath, 'utf-8');
                         const config = JSON.parse(configData) as TransformerConfig;
                         this.transformers.set(config.id, config);

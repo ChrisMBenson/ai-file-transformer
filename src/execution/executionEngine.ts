@@ -6,23 +6,23 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
-interface TransformerEntry {
-  id: string;     // Unique identifier for the transformer
-  name: string;   // Name of the transformer
-  folder: string; // Folder path where the transformer's script is located
-}
+// interface TransformerEntry {
+//   id: string;     // Unique identifier for the transformer
+//   name: string;   // Name of the transformer
+//   folder: string; // Folder path where the transformer's script is located
+// }
 
-/**
- * Retrieves the transformer entry for a given transformer name from the transformer library.
- * 
- * @param transformerName - The name of the transformer to be executed.
- * @returns The corresponding TransformerEntry object or undefined if not found.
- */
-function getTransformerEntry(transformerName: string): TransformerEntry | undefined {
-  const transformerLibrary: { transformers: TransformerEntry[] } = require('../transformerLibrary/transformerLibrary.json');
+// /**
+//  * Retrieves the transformer entry for a given transformer name from the transformer library.
+//  * 
+//  * @param transformerName - The name of the transformer to be executed.
+//  * @returns The corresponding TransformerEntry object or undefined if not found.
+//  */
+// function getTransformerEntry(transformerName: string): TransformerEntry | undefined {
+//   const transformerLibrary: { transformers: TransformerEntry[] } = require('../media/transformerLibrary/transformerLibrary.json');
 
-  return transformerLibrary.transformers.find(entry => entry.name === transformerName);
-}
+//   return transformerLibrary.transformers.find(entry => entry.name === transformerName);
+// }
 
 /**
  * Opens the specified file in VS Code.
@@ -51,22 +51,26 @@ export async function executeTransformers(config: TransformerConfig): Promise<vo
   outputChannel.appendLine(`Starting transformer execution for "${transformerName}"...`);
 
   try {
-    const transformerEntry = getTransformerEntry(transformerName);
+    
+    // const transformerEntry = getTransformerEntry(transformerName);
 
     let outputFiles: string[];
+    const executer = new DefaultExecuter();
 
-    if (!transformerEntry) {
-      outputChannel.appendLine(`Transformer folder not found. Using default executer.`);
-      const executer = new DefaultExecuter();
-      outputFiles = await executer.execute(config);
-    } else {
-      const scriptPath = path.resolve(__dirname, '../src/transformerLibrary', transformerEntry.folder);
-      outputChannel.appendLine(`Loading transformer script from: ${scriptPath}`);
+    outputFiles = await executer.execute(config);
 
-      const loader = new ExecuterLoader();
-      const executer = await loader.loadExecuters(scriptPath);
-      outputFiles = await executer.execute(config);
-    }
+    // if (!transformerEntry) {
+    //   outputChannel.appendLine(`Transformer folder not found. Using default executer.`);
+    //   const executer = new DefaultExecuter();
+    //   outputFiles = await executer.execute(config);
+    // } else {
+    //   const scriptPath = path.resolve(__dirname, '/media/transformerLibrary', transformerEntry.folder);
+    //   outputChannel.appendLine(`Loading transformer script from: ${scriptPath}`);
+
+    //   const loader = new ExecuterLoader();
+    //   const executer = await loader.loadExecuters(scriptPath);
+    //   outputFiles = await executer.execute(config);
+    // }
 
     outputChannel.appendLine(`Transformer "${transformerName}" executed successfully.`);
 
