@@ -6,6 +6,68 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
+/**
+ * Validates if a file path exists.
+ * 
+ * @param filePath - The path to validate
+ * @returns true if the path exists and is a file, false otherwise
+ */
+function isValidFilePath(filePath: string): boolean {
+  try {
+    return fs.existsSync(filePath) && fs.statSync(filePath).isFile();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Validates if a folder path exists.
+ * 
+ * @param folderPath - The path to validate
+ * @returns true if the path exists and is a directory, false otherwise
+ */
+function isValidFolderPath(folderPath: string): boolean {
+  try {
+    return fs.existsSync(folderPath) && fs.statSync(folderPath).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Validates the transformer configuration.
+ * 
+ * @param config - The transformer configuration to validate
+ * @throws Error if validation fails
+ */
+function validateConfig(config: TransformerConfig): void {
+  // Validate inputs
+  const hasValidInput = config.input.some(input => {
+    if (!input.value || input.value.trim() === '') {
+      throw new Error(`Input "${input.name}" is empty`);
+    }
+    
+    if (!isValidFilePath(input.value) && !isValidFolderPath(input.value)) {
+      throw new Error(`Input "${input.name}" path does not exist or is invalid: ${input.value}`);
+    }
+    
+    return true;
+  });
+
+  if (!hasValidInput) {
+    throw new Error('At least one valid input is required');
+  }
+
+  // Validate output folder
+  if (!config.outputFolder || config.outputFolder.trim() === '') {
+    throw new Error('Output folder location is required');
+  }
+
+  if (!isValidFolderPath(config.outputFolder)) {
+    throw new Error(`Output folder path is invalid or does not exist: ${config.outputFolder}`);
+  }
+}
+
 // interface TransformerEntry {
 //   id: string;     // Unique identifier for the transformer
 //   name: string;   // Name of the transformer
@@ -48,6 +110,16 @@ export async function executeTransformers(config: TransformerConfig): Promise<vo
   const { name: transformerName } = config;
 
   logOutputChannel.show(true);
+  
+  // Validate configuration before proceeding
+  try {
+    validateConfig(config);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logOutputChannel.error(`Validation failed for transformer "${transformerName}": ${errorMessage}`);
+    throw new Error(`Validation failed: ${errorMessage}`);
+  }
+
   logOutputChannel.info(`Starting transformer execution for "${transformerName}"...`);
 
   try {

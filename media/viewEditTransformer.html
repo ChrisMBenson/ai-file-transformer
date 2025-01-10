@@ -188,11 +188,9 @@
                     <textarea id="promptInput" class="form-control"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="aiModelInput">AI Model</label>
-                    <select id="aiModelInput" class="form-control">
-                        <option value="gpt-4o">GPT-4o</option>
-                    </select>
+                    <button id="enhancePromptButton">Enhance Prompt</button>
                 </div>
+
                 <div class="form-group">
                     <label for="temperatureInput">Temperature:</label>
                     <input type="number" id="temperatureInput" class="form-control" min="0" max="1" step="0.1">
@@ -209,14 +207,20 @@
                     <label for="processFormatInput">Process Format:</label>
                     <div id="processFormatInput" class="form-control">
                         <div class="form-check">
-                            <input type="radio" id="eachFileOption" name="processFormat" class="form-check-input" value="eachFile">
+                            <input type="radio" id="eachFileOption" name="processFormat" class="form-check-input"
+                                value="eachFile">
                             <label class="form-check-label" for="eachFileOption">Each File</label>
                         </div>
                         <div class="form-check">
-                            <input type="radio" id="joinFilesOption" name="processFormat" class="form-check-input" value="joinFiles">
+                            <input type="radio" id="joinFilesOption" name="processFormat" class="form-check-input"
+                                value="joinFiles">
                             <label class="form-check-label" for="joinFilesOption">Join Files</label>
                         </div>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="outputFileNameInput">Output File Name:</label>
+                    <input type="text" id="outputFileNameInput" class="form-control"></input>
                 </div>
                 <div class="form-group">
                     <label for="outputFileExtensionInput">Output File Extension</label>
@@ -225,15 +229,6 @@
                         <option value=".md">.md</option>
                         <option value=".json">.json</option>
                         <option value=".xml">.xml</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="namingConventionInput">Naming Convention:</label>
-                    <select id="namingConventionInput" class="form-control">
-                        <option value="camelCase">camelCase</option>
-                        <option value="PascalCase">PascalCase</option>
-                        <option value="snake_case">snake_case</option>
-                        <option value="kebab-case">kebab-case</option>
                     </select>
                 </div>
                 <button id="saveButton" class="btn-primary">Save Changes</button>
@@ -275,19 +270,19 @@
                         '<span class="field-label">Id:</span>' +
                         '<span class="field-value">' + escapeHtml(currentConfig.id) + '</span>' +
                         '</div></div>' +
-                        
+
                         '<div class="transformer-field">' +
                         '<div class="field-row">' +
                         '<span class="field-label">Name:</span>' +
                         '<span class="field-value">' + escapeHtml(currentConfig.name) + '</span>' +
                         '</div></div>' +
-                        
+
                         '<div class="transformer-field">' +
                         '<div class="field-row">' +
                         '<span class="field-label">Description:</span>' +
                         '<span class="field-value">' + escapeHtml(currentConfig.description) + '</span>' +
                         '</div></div>' +
-                        
+
                         '<div class="transformer-field">' +
                         '<div class="field-row">' +
                         '<span class="field-label">Input:</span>' +
@@ -303,27 +298,27 @@
                             '<span>No inputs defined</span>'
                         ) +
                         '</div></div></div>' +
-                        
+
                         '<div class="transformer-field">' +
                         '<div class="field-row">' +
-                        '<span class="field-label">Output:</span>' +
+                        '<span class="field-label">Output Folder:</span>' +
                         '<div class="field-value">' +
                         '<div class="input-group">' +
-                        '<input class="browse-output-field" type="text" value="' + escapeHtml(currentConfig.output || '') + '" readonly>' +
+                        '<input class="browse-output-field" type="text" value="' + escapeHtml(currentConfig.outputFolder || '') + '" readonly>' +
                         '<button class="btn-primary browseOutputButton">Browse</button>' +
                         '</div></div></div></div>' +
-                        
+
                         '<div class="transformer-field">' +
                         '<div class="field-row">' +
                         '<span class="field-label">Prompt:</span>' +
-                        '<pre class="prompt-pre">' + 
+                        '<pre class="prompt-pre">' +
                         escapeHtml(currentConfig.prompt || '') + '</pre>' +
                         '</div></div>' +
-                        
+
                         '<div class="edit-button-container">' +
                         '<button id="editButton" class="full-width-button">Edit Transformer</button>' +
-                        '</div>'+ 
-                        
+                        '</div>' +
+
                         '<div class="Execute-button-container">' +
                         '<button id="executeButton" class="full-width-button">Execute Transformer</button>' +
                         '</div>';
@@ -333,13 +328,27 @@
                     editControls.style.display = 'none';
 
                     document.querySelector('.browseOutputButton')?.addEventListener('click', () => {
-                                vscode.postMessage({ command: 'openFileDialog', output: true });
-                            });
+                        vscode.postMessage(
+                            {
+                                command: 'openFileDialog',
+                                data: JSON.stringify(currentConfig),
+                                isOutput: true
+                            }
+                        );
+                    });
 
                     document.querySelectorAll('.browseInputButton').forEach(button => {
                         button.addEventListener('click', () => {
                             const inputName = button.getAttribute('data-input-name');
-                            vscode.postMessage({ command: 'openFileDialog', inputName });
+                            vscode.postMessage(
+                                {
+                                    command: 'openFileDialog',
+                                    data: JSON.stringify(currentConfig),
+                                    isOutput: false,
+                                    inputName: inputName
+                                }
+
+                            );
                         });
                     });
 
@@ -351,26 +360,23 @@
                         document.getElementById('nameInput').value = currentConfig.name;
                         document.getElementById('descriptionInput').value = currentConfig.description;
                         document.getElementById('promptInput').value = currentConfig.prompt;
-                        
-                        // Set AI model selection
-                        const aiModelSelect = document.getElementById('aiModelInput');
-                        if (aiModelSelect) {
-                            aiModelSelect.value = currentConfig.aiModel;
-                            if (!Array.from(aiModelSelect.options).some(opt => opt.value === currentConfig.aiModel)) {
-                                aiModelSelect.value = ''; // Reset if invalid value
-                            }
-                        }
-
                         document.getElementById('temperatureInput').value = currentConfig.temperature;
                         document.getElementById('maxTokenInput').value = currentConfig.maxTokens;
                         document.getElementById('preserveStructureInput').checked = currentConfig.preserveStructure;
                         document.querySelector(`input[name="processFormat"][value="${currentConfig.processFormat}"]`).checked = true;
-                        document.getElementById('namingConventionInput').value = currentConfig.namingConvention;
                         document.getElementById('outputFileExtensionInput').value = currentConfig.outputFileExtension;
                     }
 
                     // Set up edit button
                     document.getElementById('editButton')?.addEventListener('click', showEditForm);
+
+                    // Set up execute button
+                    document.getElementById('executeButton')?.addEventListener('click', () => {
+                        vscode.postMessage({
+                            command: 'execute',
+                            data: JSON.stringify(currentConfig)
+                        });
+                    });
 
                     // If showEditForm is true, automatically show the form
                     if (message.showEditForm) {
@@ -387,7 +393,7 @@
                 }
             } else if (message.command === 'selectedFile') {
                 const inputField = document.querySelector('.browse-input-field');
-                if (!message.output) {
+                if (!message.isOutput) {
                     inputField.value = message.filePath; // Update the input box with the selected file path
                     console.log(message.inputName, message.filePath);
                     const updatedInput = currentConfig.input.map(i => {
@@ -418,7 +424,7 @@
                         outputField.value = message.filePath; // Update the output box with the selected file path
                         const updatedConfig = {
                             ...currentConfig,
-                            output: message.filePath
+                            outputFolder: message.filePath
                         };
 
                         vscode.postMessage({
@@ -427,6 +433,13 @@
                         });
                     }
                 }
+            }
+            else if (message.command === 'enhancedPrompt') {
+                const updatedConfig = {
+                    ...currentConfig,
+                    prompt: message.prompt
+                };
+                document.getElementById('promptInput').value = message.prompt;
             }
         });
 
@@ -460,15 +473,13 @@
                 description: document.getElementById('descriptionInput').value,
                 prompt: document.getElementById('promptInput').value,
                 input: currentConfig.input,
-                output: currentConfig.output,
+                outputFolder: currentConfig.outputFolder,
+                outputFileName: document.getElementById('outputFileNameInput').value,
                 outputFileExtension: document.getElementById('outputFileExtensionInput').value,
-                aiModel: document.getElementById('aiModelInput').value,
                 temperature: parseFloat(document.getElementById('temperatureInput').value),
                 maxTokens: parseInt(document.getElementById('maxTokenInput').value),
                 preserveStructure: document.getElementById('preserveStructureInput').checked,
                 processFormat: document.querySelector('input[name="processFormat"]:checked').value,
-                namingConvention: document.getElementById('namingConventionInput').value
-
             };
 
             vscode.postMessage({
@@ -485,6 +496,23 @@
         document.getElementById('cancelButton')?.addEventListener('click', () => {
             document.getElementById('transformerDetails').style.display = 'block';
             document.getElementById('editControls').style.display = 'none';
+        });
+
+        // Set up log inputs button
+        document.getElementById('enhancePromptButton')?.addEventListener('click', () => {
+            const name = document.getElementById('nameInput').value;
+            const description = document.getElementById('descriptionInput').value;
+            const prompt = document.getElementById('promptInput').value;
+
+            vscode.postMessage({
+                command: 'enhancePrompt',
+                data: JSON.stringify({
+                    config: currentConfig,
+                    name: name,
+                    description: description,
+                    prompt: prompt
+                })
+            });
         });
     </script>
 </body>

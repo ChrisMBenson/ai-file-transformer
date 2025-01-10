@@ -97,11 +97,11 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
         vscode.window.showInformationMessage('Executing process...');
     
         // Ensure the output directory exists
-        const outputPathParts = config.output.split(/[\\/]/);
+        const outputPathParts = config.outputFolder.split(/[\\/]/);
         const outputFolderUri =
             outputPathParts[outputPathParts.length - 1] !== 'output'
-                ? vscode.Uri.joinPath(vscode.Uri.file(config.output), 'output')
-                : vscode.Uri.file(config.output);
+                ? vscode.Uri.joinPath(vscode.Uri.file(config.outputFolder), 'output')
+                : vscode.Uri.file(config.outputFolder);
     
         await vscode.workspace.fs.createDirectory(outputFolderUri);
     

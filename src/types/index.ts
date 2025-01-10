@@ -14,12 +14,11 @@ export interface TransformerConfig {
     description: string;
     prompt: string;
     input: Input[];
-    output: string;
-    outputFileExtension: string;
-    aiModel: string;
+    outputFolder: string;
+    outputFileName: string | null;
+    outputFileExtension: string | null;
     temperature: number;
     maxTokens: number;
     preserveStructure: boolean;
     processFormat: 'eachFile' | 'joinFiles';
-    namingConvention: string;
 }

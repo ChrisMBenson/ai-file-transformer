@@ -86,17 +86,16 @@ export async function activate(context: vscode.ExtensionContext) {
                             required: true 
                         }
                     ],
-                    output: "outputfolder/",
+                    outputFolder: "outputfolder/",
                     outputFileExtension: ".txt",
-                    aiModel: "gpt-4o",
+                    outputFileName: "",
                     temperature: 0.7,
                     maxTokens: 1000,
                     preserveStructure: true,
-                    processFormat: "eachFile",
-                    namingConvention: "camelCase",
+                    processFormat: "eachFile"
                 };
                 await transformersProvider.addTransformer(newConfig);
-                viewEditTransformerProvider.updateContent(newConfig);
+                viewEditTransformerProvider.updateContent(newConfig, true);
             }
         ),
         vscode.commands.registerCommand(

@@ -5,6 +5,7 @@ import { logOutputChannel } from '../extension';
 import { TransformerConfig } from '../types';
 import { TransformerManager } from '../transformers/transformerManager';
 import { TransformersProvider } from '../providers/TransformersProvider';
+import { LLMClient } from '../transformers/llmFactory';
 
 export class ViewEditTransformer implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
@@ -47,7 +48,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
 
             // Handle messages from the webview
             webviewView.webview.onDidReceiveMessage(async (message) => {
-                logOutputChannel.info(`Received message: Command - "${message.command}", Data - ${JSON.stringify(message.data)}`);
+                logOutputChannel.info(`Received message: Command - "${message.command}"`);
                 switch (message.command) {
                     case 'alert':
                         vscode.window.showInformationMessage(message.text);
@@ -56,6 +57,8 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                         vscode.window.showInformationMessage(`Selected Transformer: ${message.transformer}`);
                         break;
                     case 'openFileDialog':
+                        const config = JSON.parse(message.data) as TransformerConfig;
+                        const isOutput = message.isOutput;
                         const options: vscode.OpenDialogOptions = {
                             canSelectMany: false,
                             openLabel: 'Select File',
@@ -64,7 +67,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             }
                         };
 
-                        if (message.output) {
+                        if (message.isOutput) {
                             options.canSelectFiles = false;
                             options.canSelectFolders = true;
                             options.openLabel = 'Select Folder';
@@ -76,24 +79,46 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                         const fileUri = await vscode.window.showOpenDialog(options);
                         if (fileUri && fileUri[0]) {
                             const filePath = fileUri[0].fsPath;
-                            if (message.output) {
-                                this.outputFolderPath = filePath;
+                            if (isOutput) {
+                                config.outputFolder = filePath;
+                                await this.transformerManager.updateTransformer(config);
                             } else {
-                                this.inputFilePath = filePath;
+                                const updatedInput = config.input.map(i => {
+                                    if (i.name === message.inputName) {
+                                        return {
+                                            ...i,
+                                            value: filePath
+                                        };
+                                    }
+                                    return i;
+                                });
+                                config.input = updatedInput;
+                                console.log(updatedInput);
                             }
-                            webviewView.webview.postMessage({
-                                command: 'selectedFile',
-                                filePath: filePath,
-                                inputName: message.inputName,
-                                output: message.output,
-                                currentInputPath: this.inputFilePath,
-                                currentOutputPath: this.outputFolderPath
-                            });
+                            this.updateContent(config, false);
+                        }
+                        break;
+                    case 'execute':
+                        try {
+                            const config = JSON.parse(message.data) as TransformerConfig;
+                            logOutputChannel.debug(`Saving Config ${JSON.stringify(config)}`);
+                            await this.transformerManager.executeTransformer(config);
+
+                            vscode.window.showInformationMessage('Transformer executed successfully');
+                        } catch (error) {
+                            if (error instanceof Error) {
+                                vscode.window.showErrorMessage(`Failed to execute transformer: ${error.message}`);
+                                logOutputChannel.error(`Error executing transformer: ${error.stack}`);
+                            } else {
+                                vscode.window.showErrorMessage('An unknown error occurred while executing the transformer.');
+                                logOutputChannel.error(`Unknown error: ${JSON.stringify(error)}`);
+                            }
                         }
                         break;
                     case 'save':
                         try {
                             const config = JSON.parse(message.data) as TransformerConfig;
+                            logOutputChannel.debug(`Saving Config ${JSON.stringify(config)}`);
                             // Validate config structure
                             if (!config.id || typeof config.id !== 'string') {
                                 throw new Error('Invalid transformer config: missing or invalid id');
@@ -107,11 +132,12 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
 
                             // Update the config structure to match the TransformerConfig type
                             config.input = config.input || [];
-                            config.output = config.output || '';
+                            config.outputFolder = config.outputFolder || '';
 
                             await this.transformerManager.updateTransformer(config);
                             await this.transformersProvider.refresh();
                             vscode.window.showInformationMessage('Transformer configuration saved');
+                            this.updateContent(config, false);
                         } catch (error) {
                             if (error instanceof Error) {
                                 vscode.window.showErrorMessage(`Failed to save transformer configuration: ${error.message}`);
@@ -119,6 +145,38 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             } else {
                                 vscode.window.showErrorMessage('An unknown error occurred while saving the transformer configuration.');
                                 logOutputChannel.error(`Unknown error: ${JSON.stringify(error)}`);
+                            }
+                        }
+                        break;
+                    case 'enhancePrompt':
+                        try {
+                            const { name, description, prompt } = JSON.parse(message.data);
+                            const llm = new LLMClient();
+
+                            const enhancementPrompt = `
+
+                             You are prompt engineer working for a company which transforms file from one format to another format.
+                            
+                             Using the provided details: Name: ${name}, Description: ${description}, and Current Prompt: ${prompt},
+                             enhance the given prompt to be more clear, specific, and effective for its intended transformation. 
+                             Ensure the improved prompt is concise and includes at least one placeholder like {{content}} for dynamic input replacement. 
+                             Do not repeat the provided details in the enhanced prompt. Do not repeat same placeholder multiple times. 
+                             By default place the placeholder at the end of the prompt in a new line`;
+
+                            const llmResponse = await llm.sendRequest(enhancementPrompt);
+
+                            webviewView.webview.postMessage({
+                                command: 'enhancedPrompt',
+                                prompt: llmResponse
+                            });
+
+
+                            logOutputChannel.info('Prompt enhancement completed');
+                        } catch (error) {
+                            if (error instanceof Error) {
+                                logOutputChannel.error(`Error enhancing prompt: ${error.message}`);
+                            } else {
+                                logOutputChannel.error(`Unknown error enhancing prompt: ${JSON.stringify(error)}`);
                             }
                         }
                         break;

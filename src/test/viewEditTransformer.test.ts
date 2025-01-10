@@ -56,14 +56,13 @@ suite('ViewEditTransformer Tests', () => {
       value: 'Content',
       required: true
     }],
-    output: "outputfolder/",
+    outputFolder: "outputfolder/",
     outputFileExtension: ".txt",
-    aiModel: "gpt-4o",
+    outputFileName: "output",
     temperature: 0.7,
     maxTokens: 1000,
     preserveStructure: true,
     processFormat: "eachFile",
-    namingConvention: "camelCase",
   };
 
   setup(async () => {

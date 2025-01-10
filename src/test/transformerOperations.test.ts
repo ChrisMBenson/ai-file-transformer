@@ -18,14 +18,13 @@ suite('Transformer Operations Test Suite', () => {
       description: 'Test description',
       prompt: 'Test prompt',
       input: [],
-      output: "outputfolder/",
+      outputFolder: "outputfolder/",
       outputFileExtension: ".txt",
-      aiModel: "gpt-4o",
+      outputFileName: "output",
       temperature: 0.7,
       maxTokens: 1000,
       preserveStructure: true,
       processFormat: "eachFile",
-      namingConvention: "camelCase",
     });
 
     // View the transformer
@@ -43,14 +42,13 @@ suite('Transformer Operations Test Suite', () => {
       description: 'Initial Description',
       prompt: 'Initial Prompt',
       input: [],
-      output: "outputfolder/",
+      outputFolder: "outputfolder/",
       outputFileExtension: ".txt",
-      aiModel: "gpt-4o",
+      outputFileName: "output",
       temperature: 0.7,
       maxTokens: 1000,
       preserveStructure: true,
       processFormat: "eachFile",
-      namingConvention: "camelCase",
     });
 
     // Edit the transformer
@@ -78,14 +76,13 @@ suite('Transformer Operations Test Suite', () => {
       description: 'Test description',
       prompt: 'Test prompt',
       input: [],
-      output: "outputfolder/",
+      outputFolder: "outputfolder/",
       outputFileExtension: ".txt",
-      aiModel: "gpt-4o",
+      outputFileName: "output",
       temperature: 0.7,
       maxTokens: 1000,
       preserveStructure: true,
       processFormat: "eachFile",
-      namingConvention: "camelCase",
     });
 
     // Delete the transformer
@@ -104,14 +101,13 @@ suite('Transformer Operations Test Suite', () => {
       description: 'Original description',
       prompt: 'Original prompt',
       input: [],
-      output: "outputfolder/",
+      outputFolder: "outputfolder/",
       outputFileExtension: ".txt",
-      aiModel: "gpt-4o",
+      outputFileName: "output",
       temperature: 0.7,
       maxTokens: 1000,
       preserveStructure: true,
       processFormat: "eachFile",
-      namingConvention: "camelCase",
     });
 
     // Duplicate the transformer
@@ -126,10 +122,8 @@ suite('Transformer Operations Test Suite', () => {
     assert.strictEqual(duplicate.name, 'Original Transformer (Copy)');
     assert.strictEqual(duplicate.description, 'Original description');
     assert.strictEqual(duplicate.prompt, 'Original prompt');
-    assert.strictEqual(duplicate.aiModel, 'gpt-4o');
     assert.strictEqual(duplicate.temperature, 0.7);
     assert.notStrictEqual(original.id, duplicate.id);
     assert.strictEqual(duplicate.preserveStructure, true);
-    assert.strictEqual(duplicate.namingConvention, 'camelCase');
   });
 });

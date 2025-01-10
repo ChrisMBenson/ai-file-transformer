@@ -1,5 +1,7 @@
 import { ITransformerStorage, VSCodeTransformerStorage } from '../types/storage';
 import { TransformerConfig } from '../types';
+import { executeTransformers } from '../execution/executionEngine';
+import * as path from 'path';
 import {
     TransformerError,
     TransformerNotFoundError,
@@ -144,6 +146,10 @@ export class TransformerManager {
         await this.saveTransformers();
     }
 
+    async executeTransformer(config: TransformerConfig): Promise<void> {
+        await executeTransformers(config);
+    }
+
     /**
      * Get a transformer configuration by ID or name
      * @param id ID or name of the transformer
@@ -187,12 +193,6 @@ export class TransformerManager {
             throw new TransformerValidationError('Transformer prompt is required');
         }
 
-        // AI Model validation
-        const validModels = ['gpt-4o'];
-        if (!validModels.includes(config.aiModel)) {
-            throw new TransformerValidationError(`Invalid AI model: ${config.aiModel}`);
-        }
-
         // Temperature validation
         if (typeof config.temperature !== 'number' || 
             config.temperature < 0 || 
@@ -203,15 +203,6 @@ export class TransformerManager {
         // Preserve structure validation
         if (typeof config.preserveStructure !== 'boolean') {
             throw new TransformerValidationError('Preserve structure must be a boolean');
-        }
-
-        // Naming convention validation
-        const validNamingConventions = ['camelCase', 'snake_case'];
-        if (!validNamingConventions.includes(config.namingConvention)) {
-            const errorMessage = `Invalid naming convention: "${config.namingConvention}". Valid options are: ${validNamingConventions.join(', ')}`;
-            const error = new TransformerValidationError(errorMessage);
-            console.error('Transformer validation error:', error.stack || error.message);
-            throw error;
         }
 
         // Input configuration validation
@@ -228,11 +219,6 @@ export class TransformerManager {
             if (typeof input.required !== 'boolean') {
                 throw new TransformerValidationError('Input required flag must be a boolean');
             }
-        }
-        
-        // Output validation
-        if (!config.output || typeof config.output !== 'string' || config.output.trim() === '') {
-            throw new TransformerValidationError('Output configuration is required and cannot be empty');
         }
 
     }

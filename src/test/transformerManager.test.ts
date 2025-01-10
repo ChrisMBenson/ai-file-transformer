@@ -54,14 +54,13 @@ suite('TransformerManager Behavior Tests', () => {
       type: 'input',
       required: true
     }],
-    output: "outputfolder/",
+    outputFolder: "outputfolder/",
     outputFileExtension: ".txt",
-    aiModel: "gpt-4o",
+    outputFileName: "output",
     temperature: 0.7,
     maxTokens: 1000,
     preserveStructure: true,
     processFormat: "eachFile",
-    namingConvention: "camelCase",
   };
 
   suiteSetup(() => {
@@ -207,13 +206,6 @@ suite('TransformerManager Behavior Tests', () => {
   });
 
   suite('AI Model Configuration Tests', () => {
-    test('should validate AI model configuration', async () => {
-      const invalidConfig = { ...baseConfig, aiModel: 'invalid-model' };
-      await assert.rejects(
-        () => manager.createTransformer(invalidConfig),
-        TransformerValidationError
-      );
-    });
 
     test('should validate temperature range', async () => {
       const highTemp = { ...baseConfig, temperature: 2.0 };
@@ -238,16 +230,6 @@ suite('TransformerManager Behavior Tests', () => {
     });
   });
 
-  suite('File Handling Tests', () => {
-    test('should validate naming convention', async () => {
-      const invalidConfig = { ...baseConfig, namingConvention: 'invalid' };
-      await assert.rejects(
-        () => manager.createTransformer(invalidConfig),
-        TransformerValidationError
-      );
-    });
-  });
-
   suite('Additional Validation Tests', () => {
     test('should validate prompt content', async () => {
       const invalidConfig = { ...baseConfig, prompt: '' };
@@ -259,29 +241,14 @@ suite('TransformerManager Behavior Tests', () => {
 
     test('should validate input/output configuration', async () => {
       const invalidInput = { ...baseConfig, input: [] };
-      const invalidOutput = { ...baseConfig, output: '' };
       
       await assert.rejects(
         () => manager.createTransformer(invalidInput),
         TransformerValidationError
       );
-      await assert.rejects(
-        () => manager.createTransformer(invalidOutput),
-        TransformerValidationError
-      );
     });
 
     test('should validate AI configs', async () => {
-      // Test invalid model
-      const invalidModel = { 
-        ...baseConfig, 
-        aiModel: 'invalid-model'
-      };
-      await assert.rejects(
-        () => manager.createTransformer(invalidModel),
-        TransformerValidationError
-      );
-
       // Test invalid temperature
       const invalidTemp = { 
         ...baseConfig, 
@@ -320,15 +287,6 @@ suite('TransformerManager Behavior Tests', () => {
         TransformerValidationError
       );
 
-      // Test invalid output array element
-      const invalidOutput = { 
-        ...baseConfig, 
-        output: '' 
-      };
-      await assert.rejects(
-        () => manager.createTransformer(invalidOutput),
-        TransformerValidationError
-      );
     });
   });
 });
