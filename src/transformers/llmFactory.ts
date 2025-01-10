@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { ConfigurationManager, AIProvider } from '../config/configurationManager';
 import fs from 'fs';
 import path from 'path';
+import { outputChannel, logOutputChannel } from '../extension';
 
 export interface LLMMessage {
     role: 'user' | 'assistant' | 'system';
@@ -53,23 +54,43 @@ class OpenAIClient extends LLMBase {
     }
 
     async sendRequest(promptOrMessages: LLMMessage[] | string, options?: any): Promise<string> {
+        logOutputChannel.show(true);
+        logOutputChannel.info(`Sending request to OpenAI with model: ${this.model}`);
+        
         const messages =
             typeof promptOrMessages === 'string'
                 ? [{ role: 'user', content: promptOrMessages }]
                 : promptOrMessages;
 
-        const response = await this.openai.chat.completions.create({
-            model: options?.model || this.model,
-            messages: messages as any, // Temporarily cast to any to bypass type error
-            temperature: options?.temperature || 0.7,
-            max_tokens: options?.maxTokens || 1000,
-            top_p: options?.topP || 0.9,
-        });
+        try {
+            logOutputChannel.info(`Preparing request payload...`);
+            
+            const response = await this.openai.chat.completions.create({
+                model: options?.model || this.model,
+                messages: messages as any,
+                temperature: options?.temperature || 0.7,
+                max_tokens: options?.maxTokens || 1000,
+                top_p: options?.topP || 0.9,
+            });
 
-        return response.choices[0]?.message?.content || '';
+            logOutputChannel.info(`Response received successfully.`);
+            if (response.usage) {
+                logOutputChannel.info(`Tokens Used - Prompt: ${response.usage.prompt_tokens}, Completion: ${response.usage.completion_tokens}, Total: ${response.usage.total_tokens}`);
+            }
+
+            const result = response.choices[0]?.message?.content || '';
+            return result;
+
+        } catch (error) {
+            if (error instanceof Error) {
+                logOutputChannel.error(`Error while sending request to llm: ${error.message}\nStack: ${error.stack}`);
+            } else {
+                logOutputChannel.error(`Unknown error sending request to llm: ${JSON.stringify(error)}`);
+            }
+            throw error;
+        }
     }
 }
-
 
 export class LLMClient {
     private client: LLMBase;
@@ -85,22 +106,15 @@ export class LLMClient {
                     model
                 );
                 break;
-            // case AIProvider.AzureOpenAI:
-            //     this.client = new AzureOpenAIClient(
-            //         ConfigurationManager.getAPIKey()!,
-            //         ConfigurationManager.getModelEndpoint()!,
-            //         model
-            //     );
-            //     break;
-            // case AIProvider.GoogleGemini:
-            //     this.client = new GeminiClient(ConfigurationManager.getAPIKey()!, model);
-            //     break;
             default:
                 throw new Error(`Unsupported provider: ${provider}`);
         }
     }
 
     async sendRequest(promptOrMessages: LLMMessage[] | string, options?: any): Promise<string> {
-        return this.client.sendRequest(promptOrMessages, options);
+        logOutputChannel.info(`Initializing request...`);
+        const result = await this.client.sendRequest(promptOrMessages, options);
+        logOutputChannel.info(`Request completed successfully.`);
+        return result;
     }
 }

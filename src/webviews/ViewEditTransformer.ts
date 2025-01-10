@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { logOutputChannel } from '../extension';
 import { TransformerConfig } from '../types';
 import { TransformerManager } from '../transformers/transformerManager';
 import { TransformersProvider } from '../providers/TransformersProvider';
@@ -23,6 +24,8 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
         this.transformersProvider = transformersProvider;
         this.extensionUri = extensionUri;
         this.context = context;
+
+        logOutputChannel.info("ViewEditTransformer initialized.");
     }
 
     public resolveWebviewView(
@@ -30,6 +33,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
         context: vscode.WebviewViewResolveContext,
         _token: vscode.CancellationToken
     ) {
+        logOutputChannel.info("Resolving webview view...");
         try {
             this._view = webviewView;
 
@@ -38,11 +42,12 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                 localResourceRoots: [this.extensionUri]
             };
 
+            logOutputChannel.info("Setting webview HTML content...");
             webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
             // Handle messages from the webview
             webviewView.webview.onDidReceiveMessage(async (message) => {
-                console.log(message);
+                logOutputChannel.info(`Received message: Command - "${message.command}", Data - ${JSON.stringify(message.data)}`);
                 switch (message.command) {
                     case 'alert':
                         vscode.window.showInformationMessage(message.text);
@@ -58,7 +63,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                 'All Files': ['*']
                             }
                         };
-                    
+
                         if (message.output) {
                             options.canSelectFiles = false;
                             options.canSelectFolders = true;
@@ -76,11 +81,10 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             } else {
                                 this.inputFilePath = filePath;
                             }
-                            console.log('Message :', JSON.stringify(message));
-                            webviewView.webview.postMessage({ 
-                                command: 'selectedFile', 
-                                filePath: filePath, 
-                                inputName: message.inputName, 
+                            webviewView.webview.postMessage({
+                                command: 'selectedFile',
+                                filePath: filePath,
+                                inputName: message.inputName,
                                 output: message.output,
                                 currentInputPath: this.inputFilePath,
                                 currentOutputPath: this.outputFolderPath
@@ -98,36 +102,47 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                 throw new Error('Invalid transformer config: missing or invalid name');
                             }
 
+                            // Print only id and name
+                            logOutputChannel.info(`Saving transformer: id=${config.id}, name=${config.name}`);
+
                             // Update the config structure to match the TransformerConfig type
                             config.input = config.input || [];
                             config.output = config.output || '';
 
                             await this.transformerManager.updateTransformer(config);
-                            console.log('Transformer updated, refreshing...');
                             await this.transformersProvider.refresh();
-                            console.log('Refresh complete');
                             vscode.window.showInformationMessage('Transformer configuration saved');
                         } catch (error) {
-                            vscode.window.showErrorMessage('Failed to save transformer configuration');
-                            console.error('Save error:', error);
+                            if (error instanceof Error) {
+                                vscode.window.showErrorMessage(`Failed to save transformer configuration: ${error.message}`);
+                                logOutputChannel.error(`Error saving transformer configuration: ${error.stack}`);
+                            } else {
+                                vscode.window.showErrorMessage('An unknown error occurred while saving the transformer configuration.');
+                                logOutputChannel.error(`Unknown error: ${JSON.stringify(error)}`);
+                            }
                         }
                         break;
                 }
             });
 
-            console.log('ViewEditTransformer view successfully resolved');
+            logOutputChannel.info("ViewEditTransformer view successfully resolved.");
         } catch (error) {
-            console.error('Error resolving webview:', error);
-            vscode.window.showErrorMessage(`Failed to load view: ${error instanceof Error ? error.message : String(error)}`);
+            if (error instanceof Error) {
+                logOutputChannel.error(`Error resolving webview: ${error.message}\nStack: ${error.stack}`);
+                vscode.window.showErrorMessage(`Failed to load view: ${error.message}`);
+            } else {
+                logOutputChannel.error(`Unknown error resolving webview: ${JSON.stringify(error)}`);
+                vscode.window.showErrorMessage('Failed to load view due to an unknown error.');
+            }
         }
     }
 
     private _getHtmlForWebview(webview: vscode.Webview): string {
         const htmlFilePath = path.join(this.context.extensionUri.fsPath, 'media', 'viewEditTransformer.html');
         const htmlContent = fs.readFileSync(htmlFilePath, 'utf8');
-    
+
         const nonce = this._getNonce();
-    
+
         // Replace placeholders in the HTML with dynamic values
         return htmlContent
             .replace(/\${webview.cspSource}/g, webview.cspSource)
@@ -150,6 +165,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                 data: JSON.stringify(content),
                 showEditForm
             });
+            logOutputChannel.info(`Updated webview content for transformer: id=${content.id}, name=${content.name}`);
         }
     }
 }
