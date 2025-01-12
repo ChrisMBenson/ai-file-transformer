@@ -87,7 +87,6 @@ export async function activate(context: vscode.ExtensionContext) {
                         }
                     ],
                     outputFolder: "outputfolder/",
-                    outputFileExtension: ".txt",
                     outputFileName: "",
                     temperature: 0.7,
                     maxTokens: 1000,
