@@ -2,10 +2,10 @@
     "id": "T002", 
     "name": "XmlToJson",
     "description": "Converts XML to JSON",    
-    "prompt": "Convert the following XML content into well-formatted JSON. Preserve all data structures and attributes. Ensure the JSON is valid and properly nested.",
+    "prompt": "Convert the following XML content into well-formatted JSON. Preserve all data structures and attributes. Ensure the JSON is valid and properly nested. {{content}}",
     "input": [
         {
-            "name": "File or Folder Path",
+            "name": "content",
             "description": "Path to file or folder",
             "type": "FileBrowser",
             "value": "",

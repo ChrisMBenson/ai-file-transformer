@@ -76,10 +76,10 @@ export async function activate(context: vscode.ExtensionContext) {
                     id: uuidv4(),
                     name: "New Transformer",
                     description: "Provide Description",
-                    prompt: "Transform the input files according to the following requirements:",
+                    prompt: "Write prompt for transforming the input files according to the following requirements: {{content}}",
                     input: [
                         { 
-                            name: "inputfile.txt",
+                            name: "content",
                             description: "Input file", 
                             type:'input', 
                             value:'/', 

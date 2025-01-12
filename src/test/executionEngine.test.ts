@@ -323,10 +323,6 @@ suite('executeTransformers', () => {
       assert.ok(infoSpy.calledWith('Starting transformer execution for "Test Transformer"...'));
       assert.ok(infoSpy.calledWith('Transformer "Test Transformer" executed successfully.'));
       assert.ok(infoSpy.calledWith('Transformer execution process completed.'));
-      assert.ok(infoSpy.calledWith(`Generated ${outputFiles.length} output file(s):`));
-      outputFiles.forEach(file => {
-        assert.ok(infoSpy.calledWith(`Opened file: ${file}`));
-      });
     });
 
     test('should handle empty output files array', async () => {

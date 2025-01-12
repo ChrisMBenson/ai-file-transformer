@@ -1,6 +1,6 @@
 // src/types/index.ts
 
-interface Input {
+export interface Input {
     name: string;
     description: string;
     type: string;
@@ -20,4 +20,12 @@ export interface TransformerConfig {
     maxTokens: number;
     preserveStructure: boolean;
     processFormat: 'eachFile' | 'joinFiles';
+}
+
+export interface ProgressEvent {
+    type: 'execution' | 'editMode';
+    subType: 'currentInput' | 'progress' | 'outputCreated';
+    filePath?: string;
+    outputUri?: string;
+    message?: string;
 }

@@ -9,11 +9,10 @@ import { LLMClient } from '../transformers/llmFactory';
 
 export class ViewEditTransformer implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
+    private currentExecution: Promise<void> | null = null;
 
     private transformerManager: TransformerManager;
     private transformersProvider: TransformersProvider;
-    private inputFilePath?: string;
-    private outputFolderPath?: string;
 
     constructor(
         private readonly extensionUri: vscode.Uri,
@@ -93,8 +92,11 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                     return i;
                                 });
                                 config.input = updatedInput;
-                                console.log(updatedInput);
+                                console.log("Updated Config: ", updatedInput);
                             }
+                            await this.transformerManager.updateTransformer(config);
+                            await this.transformersProvider.refresh();
+                            vscode.window.showInformationMessage('Transformer configuration saved');
                             this.updateContent(config, false);
                         }
                         break;
@@ -102,16 +104,66 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                         try {
                             const config = JSON.parse(message.data) as TransformerConfig;
                             logOutputChannel.debug(`Saving Config ${JSON.stringify(config)}`);
-                            await this.transformerManager.executeTransformer(config);
+                            
+                            // Notify webview that execution started
+                            if (this._view) {
+                                this._view.webview.postMessage({
+                                    command: 'executionStarted'
+                                });
+                            }
+
+                            const execution = this.transformerManager.executeTransformer(config);
+                            
+                            // Store the execution promise for potential cancellation
+                            this.currentExecution = execution;
+
+                            await execution;
+                            
+                            // Notify webview that execution completed
+                            if (this._view) {
+                                this._view.webview.postMessage({
+                                    command: 'executionFinished'
+                                });
+                            }
 
                             vscode.window.showInformationMessage('Transformer executed successfully');
                         } catch (error) {
+                            if (this._view) {
+                                this._view.webview.postMessage({
+                                    command: 'executionFinished'
+                                });
+                            }
+                            
                             if (error instanceof Error) {
                                 vscode.window.showErrorMessage(`Failed to execute transformer: ${error.message}`);
                                 logOutputChannel.error(`Error executing transformer: ${error.stack}`);
                             } else {
                                 vscode.window.showErrorMessage('An unknown error occurred while executing the transformer.');
                                 logOutputChannel.error(`Unknown error: ${JSON.stringify(error)}`);
+                            }
+                        }
+                        break;
+                    case 'stopExecution':
+                        if (this.currentExecution) {
+                            try {
+                                await this.transformerManager.stopExecution();
+                                this.currentExecution = null;
+                                
+                                if (this._view) {
+                                    this._view.webview.postMessage({
+                                        command: 'executionStopped'
+                                    });
+                                }
+                                
+                                vscode.window.showInformationMessage('Execution stopped');
+                            } catch (error) {
+                                if (error instanceof Error) {
+                                    vscode.window.showErrorMessage(`Failed to stop execution: ${error.message}`);
+                                    logOutputChannel.error(`Error stopping execution: ${error.stack}`);
+                                } else {
+                                    vscode.window.showErrorMessage('An unknown error occurred while stopping execution.');
+                                    logOutputChannel.error(`Unknown error: ${JSON.stringify(error)}`);
+                                }
                             }
                         }
                         break;
@@ -155,13 +207,13 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
 
                             const enhancementPrompt = `
 
-                             You are prompt engineer working for a company which transforms file from one format to another format.
-                            
-                             Using the provided details: Name: ${name}, Description: ${description}, and Current Prompt: ${prompt},
-                             enhance the given prompt to be more clear, specific, and effective for its intended transformation. 
-                             Ensure the improved prompt is concise and includes at least one placeholder like {{content}} for dynamic input replacement. 
-                             Do not repeat the provided details in the enhanced prompt. Do not repeat same placeholder multiple times. 
-                             By default place the placeholder at the end of the prompt in a new line`;
+                                You are prompt engineer working for a company which transforms file from one format to another format.
+                                
+                                Using the provided details: Name: ${name}, Description: ${description}, and Current Prompt: ${prompt},
+                                enhance the given prompt to be more clear, specific, and effective for its intended transformation. 
+                                Ensure the improved prompt is concise and includes at least one placeholder like {{content}} for dynamic input replacement. 
+                                Do not repeat the provided details in the enhanced prompt. Do not repeat same placeholder multiple times. 
+                                By default place the placeholder at the end of the prompt in a new line`;
 
                             const llmResponse = await llm.sendRequest(enhancementPrompt);
 
@@ -169,7 +221,6 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                                 command: 'enhancedPrompt',
                                 prompt: llmResponse
                             });
-
 
                             logOutputChannel.info('Prompt enhancement completed');
                         } catch (error) {
@@ -180,8 +231,73 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             }
                         }
                         break;
+                    case 'openPromptInEditor':
+                        try {
+                            const prompt = message.prompt;
+                            // Create a temporary file
+                            // Ensure global storage directory exists
+                            await fs.promises.mkdir(this.context.globalStorageUri.fsPath, { recursive: true });
+                            
+                            const tempFile = path.join(this.context.globalStorageUri.fsPath, 'temp_prompt.txt');
+                            try {
+                                await fs.promises.writeFile(tempFile, prompt);
+                            } catch (error) {
+                                if (error instanceof Error) {
+                                    throw new Error(`Failed to create temp prompt file: ${error.message}`);
+                                }
+                                throw new Error('Failed to create temp prompt file');
+                            }
+                            
+                            // Open the temporary file
+                            const doc = await vscode.workspace.openTextDocument(tempFile);
+                            const editor = await vscode.window.showTextDocument(doc);
+                            
+                            // Watch for changes
+                            const watcher = vscode.workspace.createFileSystemWatcher(tempFile);
+                            const saveDisposable = vscode.workspace.onDidSaveTextDocument(savedDoc => {
+                                if (savedDoc.uri.fsPath === tempFile) {
+                                    const newContent = savedDoc.getText();
+                                    if (this._view) {
+                                        this._view.webview.postMessage({
+                                            command: 'updatePrompt',
+                                            prompt: newContent
+                                        });
+                                    }
+                                }
+                            });
+
+                            // Clean up when editor is closed
+                            const closeDisposable = vscode.window.onDidChangeVisibleTextEditors(editors => {
+                                if (!editors.some(e => e.document.uri.fsPath === tempFile)) {
+                                    watcher.dispose();
+                                    saveDisposable.dispose();
+                                    closeDisposable.dispose();
+                                    fs.promises.unlink(tempFile).catch(err => {
+                                        logOutputChannel.error(`Error deleting temp file: ${err.message}`);
+                                    });
+                                }
+                            });
+                        } catch (error) {
+                            if (error instanceof Error) {
+                                logOutputChannel.error(`Error opening prompt in editor: ${error.message}`);
+                            } else {
+                                logOutputChannel.error(`Unknown error opening prompt in editor: ${JSON.stringify(error)}`);
+                            }
+                        }
+                        break;
                 }
             });
+
+            // Register command for opening prompt in editor
+            this.context.subscriptions.push(
+                vscode.commands.registerCommand('ai-file-transformer.openPromptInEditor', async () => {
+                    if (this._view) {
+                        this._view.webview.postMessage({
+                            command: 'openPromptInEditor'
+                        });
+                    }
+                })
+            );
 
             logOutputChannel.info("ViewEditTransformer view successfully resolved.");
         } catch (error) {

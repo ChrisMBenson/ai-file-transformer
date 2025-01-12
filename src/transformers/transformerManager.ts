@@ -1,7 +1,6 @@
 import { ITransformerStorage, VSCodeTransformerStorage } from '../types/storage';
 import { TransformerConfig } from '../types';
-import { executeTransformers } from '../execution/executionEngine';
-import * as path from 'path';
+import { executeTransformers, stopExecution } from '../execution/executionEngine';
 import {
     TransformerError,
     TransformerNotFoundError,
@@ -146,8 +145,25 @@ export class TransformerManager {
         await this.saveTransformers();
     }
 
+    private currentExecution: { cancel: () => void } | null = null;
+
     async executeTransformer(config: TransformerConfig): Promise<void> {
-        await executeTransformers(config);
+        try {
+            // Validate config before execution
+            this.validateTransformerConfig(config);
+            
+            // Execute the transformers
+            await executeTransformers(config);
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new TransformerError(`Transformer execution failed: ${error.message}`);
+            }
+            throw new TransformerError('Unknown error occurred during transformer execution');
+        }
+    }
+
+    async stopExecution(): Promise<void> {
+        stopExecution();
     }
 
     /**

@@ -1,8 +1,11 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { EventEmitter } from 'vscode';
 import { LLMClient } from '../../transformers/llmFactory';
-import { TransformerConfig } from '../../types';
+import { TransformerConfig, ProgressEvent } from '../../types';
+
+
 
 export interface BaseExecuter {
     // Configuration Methods
@@ -25,6 +28,24 @@ export interface BaseExecuter {
 }
 
 export abstract class AbstractBaseExecuter implements BaseExecuter {
+    private shouldStop = false;
+    private progressEmitter = new EventEmitter<ProgressEvent>();
+
+    /**
+     * Registers a progress event handler
+     * @param handler - Callback function to handle progress events
+     */
+    onProgress(handler: (event: ProgressEvent) => void) {
+        this.progressEmitter.event(handler);
+    }
+
+    /**
+     * Stops the current execution
+     */
+    stop(): void {
+        this.shouldStop = true;
+    }
+
     /**
      * Provides options for the input file browser dialog.
      * Override this method in derived classes to customize the behaviour.
@@ -97,46 +118,70 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
      * Override in derived classes to customize execution logic.
      */
     async execute(config: TransformerConfig): Promise<string[]> {
+        this.shouldStop = false; // Reset stop flag at start of execution
         vscode.window.showInformationMessage('Executing process...');
+
     
-        // Ensure the output directory exists
-        // Ensure output folder path is properly normalized
-        const outputFolder = config.outputFolder.replace(/\\/g, '/');
-        const outputFolderUri = vscode.Uri.file(outputFolder);
-    
+        const outputFolderUri = vscode.Uri.file(config.outputFolder);
         await vscode.workspace.fs.createDirectory(outputFolderUri);
     
         const outputFileUris: string[] = [];
     
+        const processDirectory = async (dirPath: string, relativePath: string = '') => {
+            const items = fs.readdirSync(dirPath);
+            for (const item of items) {
+                if (this.shouldStop) {
+                    vscode.window.showInformationMessage('Execution stopped');
+                    return;
+                }
+    
+                const itemPath = path.join(dirPath, item);
+                const itemStats = fs.statSync(itemPath);
+    
+                if (itemStats.isDirectory()) {
+                    // Recursively process subdirectory
+                    const newRelativePath = path.join(relativePath, item);
+                    await processDirectory(itemPath, newRelativePath);
+                } else {
+                    // Process file
+                    const relativeFilePath = path.join(relativePath, item);
+                    if (item.startsWith('.')) {
+                        continue; // Skip hidden files
+                    }
+                    await this.processFileWithSubdirectoryStructure(itemPath, relativeFilePath, config, outputFolderUri, outputFileUris);
+                }
+            }
+        };
+    
         for (const input of config.input) {
             try {
                 const inputStats = fs.statSync(input.value);
-        
+    
                 if (inputStats.isDirectory()) {
-                    const files = fs.readdirSync(input.value).filter(file => {
-                        const filePath = path.join(input.value, file);
-                        return fs.statSync(filePath).isFile();
-                    });
-        
-                    for (const file of files) {
-                        const filePath = path.join(input.value, file);
-                        await this.processFile.call(this, filePath, config, outputFolderUri, outputFileUris);
-                    }
+                    await processDirectory(input.value);
                 } else {
-                    await this.processFile.call(this, input.value, config, outputFolderUri, outputFileUris);
+                    await this.processFileWithSubdirectoryStructure(input.value, path.basename(input.value), config, outputFolderUri, outputFileUris);
                 }
             } catch (error) {
                 vscode.window.showErrorMessage(`Error processing input ${input.value}: ${error instanceof Error ? error.message : String(error)}`);
             }
         }
-        
     
-        vscode.window.showInformationMessage('Transformation complete.');
+        if (!this.shouldStop) {
+            vscode.window.showInformationMessage('Transformation complete.');
+        }
         return outputFileUris;
     }
-
-    async processFile(filePath: string, config: TransformerConfig, outputFolderUri: vscode.Uri, outputFileUris: string[]) {
+    
+    async processFileWithSubdirectoryStructure(filePath: string, relativeFilePath: string, config: TransformerConfig, outputFolderUri: vscode.Uri, outputFileUris: string[]) {
         try {
+            this.progressEmitter.fire({
+                type: 'execution',
+                subType: 'currentInput',
+                filePath: filePath,
+                message: `Processing file: ${relativeFilePath}`
+            });
+    
             const inputData = fs.readFileSync(filePath, 'utf-8');
     
             if (!this.validateInput(config)) {
@@ -147,17 +192,27 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
             const processedData = this.preProcessInput(inputData);
             const message = this.generateUserMessage(config, processedData);
             const response = await this.sendToLLM(message);
-
+    
+            const relativeOutputDir = path.dirname(relativeFilePath);
             const outputFileName = this.getOutputFileName(config, filePath);
-            const outputFileUri = vscode.Uri.joinPath(outputFolderUri, outputFileName);
+            const outputDirUri = vscode.Uri.joinPath(outputFolderUri, relativeOutputDir);
+    
+            await vscode.workspace.fs.createDirectory(outputDirUri);
+            const outputFileUri = vscode.Uri.joinPath(outputDirUri, outputFileName);
     
             await this.writeOutput(response, outputFileUri, config);
             outputFileUris.push(outputFileUri.path);
+    
+            this.progressEmitter.fire({
+                type: 'execution',
+                subType: 'outputCreated',
+                outputUri: outputFileUri.path,
+                message: `Created output file: ${path.basename(outputFileUri.path)}`
+            });
         } catch (error) {
             vscode.window.showErrorMessage(`Error processing file ${filePath}: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
-    
 
     /**
      * Validates the output data. Override to implement custom validation logic.

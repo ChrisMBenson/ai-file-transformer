@@ -36,6 +36,35 @@
             background-color: var(--vscode-button-hoverBackground);
         }
 
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--vscode-button-foreground);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        .stop-button {
+            background-color: #dc3545;
+        }
+
+        .stop-button:hover {
+            background-color: #c82333;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .section {
             background-color: var(--vscode-sideBarSectionHeader-background);
             padding: 16px;
@@ -149,6 +178,11 @@
             width: 100%;
         }
 
+        .prompt-container {
+            position: relative;
+            width: 100%;
+        }
+
         h3,
         h4 {
             color: var(--vscode-foreground);
@@ -185,9 +219,13 @@
                 </div>
                 <div class="form-group">
                     <label for="promptInput">Prompt:</label>
-                    <textarea id="promptInput" class="form-control"></textarea>
+                    <div class="prompt-container">
+                        <textarea id="promptInput" class="form-control"></textarea>
+                        
+                    </div>
                 </div>
                 <div class="form-group">
+                    <button id="openPromptInEditor">Open in Editor</button>
                     <button id="enhancePromptButton">Enhance Prompt</button>
                 </div>
 
@@ -311,7 +349,11 @@
                         '</div>' +
 
                         '<div class="Execute-button-container">' +
-                        '<button id="executeButton" class="full-width-button">Execute Transformer</button>' +
+                        '<button id="executeButton" class="full-width-button">' +
+                        '<span class="spinner" style="display: none;"></span>' +
+                        '<span class="button-text">Execute Transformer</span>' +
+                        '</button>' +
+                        '<button id="stopButton" class="full-width-button stop-button" style="display: none;">Stop</button>' +
                         '</div>';
 
 
@@ -363,10 +405,57 @@
 
                     // Set up execute button
                     document.getElementById('executeButton')?.addEventListener('click', () => {
+                        const executeButton = document.getElementById('executeButton');
+                        const stopButton = document.getElementById('stopButton');
+                        const spinner = executeButton.querySelector('.spinner');
+                        const buttonText = executeButton.querySelector('.button-text');
+                        
+                        // Show spinner and update text
+                        spinner.style.display = 'inline-block';
+                        buttonText.textContent = 'Executing...';
+                        executeButton.disabled = true;
+                        
+                        // Show stop button
+                        stopButton.style.display = 'block';
+                        
                         vscode.postMessage({
                             command: 'execute',
                             data: JSON.stringify(currentConfig)
                         });
+                    });
+
+                    // Set up stop button
+                    document.getElementById('stopButton')?.addEventListener('click', () => {
+                        vscode.postMessage({
+                            command: 'stopExecution'
+                        });
+                    });
+
+                    // Handle execution state changes
+                    window.addEventListener('message', (event) => {
+                        if (event.data.command === 'executionStarted') {
+                            const executeButton = document.getElementById('executeButton');
+                            const stopButton = document.getElementById('stopButton');
+                            const spinner = executeButton.querySelector('.spinner');
+                            const buttonText = executeButton.querySelector('.button-text');
+                            
+                            spinner.style.display = 'inline-block';
+                            buttonText.textContent = 'Executing...';
+                            executeButton.disabled = true;
+                            stopButton.style.display = 'block';
+                        }
+                        else if (event.data.command === 'executionFinished' || 
+                                 event.data.command === 'executionStopped') {
+                            const executeButton = document.getElementById('executeButton');
+                            const stopButton = document.getElementById('stopButton');
+                            const spinner = executeButton.querySelector('.spinner');
+                            const buttonText = executeButton.querySelector('.button-text');
+                            
+                            spinner.style.display = 'none';
+                            buttonText.textContent = 'Execute Transformer';
+                            executeButton.disabled = false;
+                            stopButton.style.display = 'none';
+                        }
                     });
 
                     // If showEditForm is true, automatically show the form
@@ -486,6 +575,22 @@
         document.getElementById('cancelButton')?.addEventListener('click', () => {
             document.getElementById('transformerDetails').style.display = 'block';
             document.getElementById('editControls').style.display = 'none';
+        });
+
+        // Set up open prompt in editor button
+        document.getElementById('openPromptInEditor')?.addEventListener('click', () => {
+            const prompt = document.getElementById('promptInput').value;
+            vscode.postMessage({
+                command: 'openPromptInEditor',
+                prompt: prompt
+            });
+        });
+
+        // Handle prompt updates from editor
+        window.addEventListener('message', (event) => {
+            if (event.data.command === 'updatePrompt') {
+                document.getElementById('promptInput').value = event.data.prompt;
+            }
         });
 
         // Set up log inputs button
