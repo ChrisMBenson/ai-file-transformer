@@ -12,7 +12,7 @@ import * as fs from 'fs';
  * @param filePath - The path to validate
  * @returns true if the path exists and is a file, false otherwise
  */
-function isValidFilePath(filePath: string): boolean {
+export function isValidFilePath(filePath: string): boolean {
   try {
     return fs.existsSync(filePath) && fs.statSync(filePath).isFile();
   } catch {
@@ -26,7 +26,7 @@ function isValidFilePath(filePath: string): boolean {
  * @param folderPath - The path to validate
  * @returns true if the path exists and is a directory, false otherwise
  */
-function isValidFolderPath(folderPath: string): boolean {
+export function isValidFolderPath(folderPath: string): boolean {
   try {
     return fs.existsSync(folderPath) && fs.statSync(folderPath).isDirectory();
   } catch {
