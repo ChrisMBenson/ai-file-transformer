@@ -90,7 +90,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     outputFileName: "",
                     temperature: 0.7,
                     maxTokens: 1000,
-                    preserveStructure: true,
                     processFormat: "eachFile"
                 };
                 await transformersProvider.addTransformer(newConfig);

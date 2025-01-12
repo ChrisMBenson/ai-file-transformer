@@ -22,7 +22,6 @@ suite('Transformer Operations Test Suite', () => {
     outputFileName: "output",
       temperature: 0.7,
       maxTokens: 1000,
-      preserveStructure: true,
       processFormat: "eachFile",
     });
 
@@ -45,7 +44,6 @@ suite('Transformer Operations Test Suite', () => {
       outputFileName: "output",
       temperature: 0.7,
       maxTokens: 1000,
-      preserveStructure: true,
       processFormat: "eachFile",
     });
 
@@ -78,7 +76,6 @@ suite('Transformer Operations Test Suite', () => {
       outputFileName: "output",
       temperature: 0.7,
       maxTokens: 1000,
-      preserveStructure: true,
       processFormat: "eachFile",
     });
 
@@ -102,7 +99,6 @@ suite('Transformer Operations Test Suite', () => {
       outputFileName: "output",
       temperature: 0.7,
       maxTokens: 1000,
-      preserveStructure: true,
       processFormat: "eachFile",
     });
 
@@ -120,6 +116,5 @@ suite('Transformer Operations Test Suite', () => {
     assert.strictEqual(duplicate.prompt, 'Original prompt');
     assert.strictEqual(duplicate.temperature, 0.7);
     assert.notStrictEqual(original.id, duplicate.id);
-    assert.strictEqual(duplicate.preserveStructure, true);
   });
 });

@@ -35,4 +35,4 @@ jobs:
       - name: Run headless test
         uses: GabrielBB/xvfb-action@v1.0
         with:
-          run: npx vscode-test --run out/test/transformerOperations.test.js --run out/test/viewEditTransformer.test.js --run out/test/transformerManager.test.js
+          run: npm test

@@ -58,7 +58,6 @@ suite('TransformerManager Behavior Tests', () => {
     outputFileName: "output",
     temperature: 0.7,
     maxTokens: 1000,
-    preserveStructure: true,
     processFormat: "eachFile",
   };
 

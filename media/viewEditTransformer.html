@@ -238,10 +238,6 @@
                     <input type="number" id="maxTokenInput" class="form-control" min="1000" max="30000" step="1000">
                 </div>
                 <div class="form-group">
-                    <label for="preserveStructureInput">Preserve Structure:</label>
-                    <input type="checkbox" id="preserveStructureInput" class="form-control">
-                </div>
-                <div class="form-group">
                     <label for="processFormatInput">Process Format:</label>
                     <div id="processFormatInput" class="form-control">
                         <div class="form-check">
@@ -411,7 +407,6 @@
                         document.getElementById('promptInput').value = currentConfig.prompt;
                         document.getElementById('temperatureInput').value = currentConfig.temperature;
                         document.getElementById('maxTokenInput').value = currentConfig.maxTokens;
-                        document.getElementById('preserveStructureInput').checked = currentConfig.preserveStructure;
                         document.querySelector(`input[name="processFormat"][value="${currentConfig.processFormat}"]`).checked = true;
                         document.getElementById('outputFileNameInput').value = currentConfig.outputFileName;
                     }
@@ -480,7 +475,6 @@
                     document.getElementById('promptInput').value = currentConfig.prompt || '';
                     document.getElementById('temperatureInput').value = currentConfig.temperature || 0;
                     document.getElementById('maxTokenInput').value = currentConfig.maxTokens || 1000;
-                    document.getElementById('preserveStructureInput').checked = currentConfig.preserveStructure || false;
                     document.querySelector(`input[name="processFormat"][value="${currentConfig.processFormat}"]`).checked = true;
                     document.getElementById('outputFileNameInput').value = currentConfig.outputFileName || '';
 
@@ -583,7 +577,6 @@
                 outputFileName: document.getElementById('outputFileNameInput').value,
                 temperature: parseFloat(document.getElementById('temperatureInput').value),
                 maxTokens: parseInt(document.getElementById('maxTokenInput').value),
-                preserveStructure: document.getElementById('preserveStructureInput').checked,
                 processFormat: document.querySelector('input[name="processFormat"]:checked').value,
             };
 

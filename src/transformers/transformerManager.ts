@@ -216,11 +216,6 @@ export class TransformerManager {
             throw new TransformerValidationError('Temperature must be a number between 0 and 1');
         }
 
-        // Preserve structure validation
-        if (typeof config.preserveStructure !== 'boolean') {
-            throw new TransformerValidationError('Preserve structure must be a boolean');
-        }
-
         // Input configuration validation
         if (!Array.isArray(config.input) || config.input.length === 0) {
             throw new TransformerValidationError('At least one input configuration is required');

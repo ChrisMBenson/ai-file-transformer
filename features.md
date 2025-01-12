@@ -14,7 +14,6 @@ Issue - execute on transformer button does nothing	H0
 Solve TokenSize Limit Problem	H1
 Solve TPM - Token Limits Problem	H1
 Implement functionality for ManyToOne	H1
-Implement functionality for preserveStructure execution	H1
 Remove namingConvention and AI model from config	H1
 CICD - Automate publish to Github	H1
 ability to edit prompt in large window	H1
