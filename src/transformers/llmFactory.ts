@@ -42,15 +42,15 @@ abstract class LLMBase {
     }
 }
 
-class OpenAIClient extends LLMBase {
+export class OpenAIClient extends LLMBase {
     private openai: OpenAI;
 
-    constructor(apiKey: string, model: string = 'gpt-4') {
+    constructor(apiKey: string, model: string = 'gpt-4', openai?: OpenAI) {
         super(model);
         if (!apiKey) {
             throw new Error('OpenAI API key is missing');
         }
-        this.openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+        this.openai = openai || new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
     }
 
     async sendRequest(promptOrMessages: LLMMessage[] | string, options?: any): Promise<string> {

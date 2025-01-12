@@ -178,6 +178,11 @@ export const window = {
     webview: new Webview(),
     reveal: () => {},
     dispose: () => {}
+  }),
+  createOutputChannel: () => ({
+    show: () => {},
+    appendLine: () => {},
+    clear: () => {}
   })
 };
 
