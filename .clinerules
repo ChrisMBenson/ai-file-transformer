@@ -1,1 +1,6 @@
-When making changes, always finish by running npm run compile and check for issues.  Also run npm test.
+Testing:
+Stick to Chai and Mocha. Do not use Jest.
+Follow the conventions of exsisting test files.
+Tests should focus on high level behavior. Keep tests simple.
+Vscode module needs to be properly mocked using the mock implementations from src/test/mocks/vscode.ts
+Each test file should have one 'suite' and multiple 'test' (instead of describe and it)

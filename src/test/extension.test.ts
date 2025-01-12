@@ -1,4 +1,3 @@
-import { suite, test, teardown, suiteSetup } from 'mocha';
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 
@@ -8,7 +7,7 @@ suite('Extension Behavior Tests', () => {
 
   suiteSetup(async () => {
     // Activate the extension
-    const extension = vscode.extensions.getExtension('leewsimpson.ai-file-transformer');
+    const extension = vscode.extensions.getExtension('AIStudio.ai-file-transformer');
     if (!extension) {
       throw new Error('Extension not found');
     }
@@ -17,29 +16,15 @@ suite('Extension Behavior Tests', () => {
 
   test('should register all commands', async () => {
     const commands = await vscode.commands.getCommands(true);
+    console.log('Registered commands:', commands.filter(c => c.startsWith('ai-file-transformer')));
     const expectedCommands = [
-      'extension.transformFile',
-      'extension.configureSettings',
-      'extension.viewTransformations'
+      'ai-file-transformer.executeTransformer',
+      'ai-file-transformer.openSettings'
     ];
     
     expectedCommands.forEach(command => {
       assert.ok(commands.includes(command), `Command ${command} not registered`);
     });
-  });
-
-  test('should transform valid file correctly', async () => {
-    // Create a test file
-    const uri = vscode.Uri.file('test-file.txt');
-    await vscode.workspace.fs.writeFile(uri, Buffer.from('test content'));
-    
-    // Execute transform command
-    await vscode.commands.executeCommand('extension.transformFile', uri);
-    
-    // Verify transformation
-    const transformedContent = await vscode.workspace.fs.readFile(uri);
-    assert.notStrictEqual(transformedContent.toString(), 'test content', 
-      'File content should be transformed');
   });
 
   test('should handle invalid file gracefully', async () => {

@@ -1,67 +1,42 @@
-# VS Code AI Transformers Plugin
+Current Backlog / Roadmap
 
-The **VS Code AI Transformers Plugin** is a tool designed to automate and streamline AI-powered workflows directly within the VS Code environment. This plugin offers a customisable and intuitive interface for processing files using AI, enabling users to execute complex tasks efficiently. At the heart of the plugin are **Transformers**, each designed to process matching files from the input folder, execute the AI call for each file, and create the specified outputs.
-
----
-
-## **General Configuration**
-
-### **AI Models**
-- Select from a variety of AI models, including OpenAI, Anthropic, and Mistral AI.
-- Configure API keys for each model to enable access to their capabilities.
-- Set the maximum number of concurrent API calls to manage resource usage and avoid rate limits.
-- Enable parallel processing for improved performance.
-
----
-
-## **Transformer Configuration**
-
-Configuration of a single transformer involves the following options:
-
-### **Name**
-- Assign a unique name to the transformer for identification and management.
-
-### **Description**
-- Provide a brief description of the transformer's purpose and functionality.
-
-### **Input File**
-- Specify input files using wildcard filters (e.g., `*.txt`, `src/**/*.js`) with optional subfolder inclusion.
-
-### **Prompt**
-- Craft AI instructions using a prompt editor, with the ability to include metadata like filename, folder, or content snippets.
-- Adjust AI options such as temperature and model type for fine-tuning results.
-
-### **Output File**
-- Define the output folder and configure naming conventions for output files (e.g., appending `_transformed`, timestamps).
-- Option to preserve the input folder structure within the output directory.
-
----
-
-## **Transformer Management**
-
-Manage transformers through an intuitive user interface with the following capabilities:
-
-### **Create and Duplicate Transformers**
-- Easily create new transformers or duplicate existing ones for quick customisation and adaptation to new tasks.
-
-### **Edit Transformers**
-- Modify transformer settings, including input/output configurations and prompts.
-
-### **Delete Transformers**
-- Remove obsolete transformers to maintain an organised workspace.
-
-### **Find Existing Transformers**
-- Browse an online library of existing transformers for easy discovery and reuse. Selecting one loads it into the user's workspace. *(Planned Feature)*
-
----
-
-## **Execution and Results**
-
-### **Execution Options**
-- Run transformers with a single command or click.
-- Option to exclude or redo tasks where output files already exist.
-
-### **Progress and Feedback**
-- Display progress indicators during execution.
-- Provide real-time logs with detailed updates and feedback for each processed file.
-
+Name	Priority
+Add tests for ExecutionEngine	H0
+Add tests for BaseExecuter	H0
+Add tests for LLMClient	H0
+Add validations for ExecutorEngine	H0
+Fix resetting of input filepath when output is selected	H0
+Ability to stop execution	H0
+Automatic run of tests on PR Request	H0
+Issue - Fix refresh of WebView on Edit/Cancel/Add/Save	H0
+When creating new - should view transformer in edit mode	H0
+Issue - execute on transformer button does nothing	H0
+Solve TokenSize Limit Problem	H1
+Solve TPM - Token Limits Problem	H1
+Implement functionality for ManyToOne	H1
+Implement functionality for preserveStructure execution	H1
+Remove namingConvention and AI model from config	H1
+CICD - Automate publish to Github	H1
+ability to edit prompt in large window	H1
+Multiple inputs and with templating in prompts	H1
+Support for Azure OpenAI	H1
+Ability to put placeholder of {input contents} prompt - instead of appending.	H1
+ability to filter input files - ie: only look for *.cs files	H1
+ability to change output file name(s) with *	H1
+Improved progress output for user. (Spinning wheel, percent complete)	H1
+Ability to test prompt before saving	H2
+ability to browse & download a transformer from GIT via plugin	H2
+ability to configure git repo in settings	H2
+Ability to embed an input (lower priority)	H2
+Support for local model	H2
+Support for Gemini	H2
+Support for Anthropic	H2
+Ability to use custom JS scripts	H3
+Enhance Prompt Button - Automatically enhance prompt using AI	H3
+Implement parallel execution	H3
+Button to automatically generate the prompt based on name and description	H3
+Improved extension sharing experience	H3
+ability to create a PR for a change to the transformer config - ie prompt.	H3
+Subfolders in the transformer view	H3
+ability to edit file inputs on the edit window - not just view/execute window	H3
+Ability to support multiple providers in settings - list of providers	H3
