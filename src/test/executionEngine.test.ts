@@ -32,7 +32,6 @@ suite('executeTransformers', () => {
     }],
     outputFolder: 'valid-folder',
     outputFileName: null,
-    outputFileExtension: null,
     temperature: 0.7,
     maxTokens: 1000,
     preserveStructure: false,

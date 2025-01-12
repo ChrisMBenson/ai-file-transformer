@@ -8,7 +8,6 @@ export interface BaseExecuter {
     // Configuration Methods
     getInputFileBrowserOption(config: TransformerConfig): vscode.OpenDialogOptions;
     getOutputFileName(config: TransformerConfig, inputFilePath: string): string;
-    getOutputFileExtension(config: TransformerConfig): string;
 
     // Input Handling Methods
     validateInput(config: TransformerConfig): boolean;
@@ -48,15 +47,19 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
      */
     getOutputFileName(config: TransformerConfig, inputFilePath: string): string {
         const inputFileNameWithoutExtension = path.basename(inputFilePath, path.extname(inputFilePath));
-        return inputFileNameWithoutExtension + this.getOutputFileExtension(config);
-    }
-
-    /**
-     * Provides the output file extension based on the configuration.
-     * Override this method in derived classes to customize the behaviour.
-     */
-    getOutputFileExtension(config: TransformerConfig): string {
-        return config.outputFileExtension || ".txt"; // Default file extension
+        
+        // If outputFileName is not specified, use input filename with .txt extension
+        if (!config.outputFileName) {
+            return inputFileNameWithoutExtension + '.txt';
+        }
+        
+        // Check if outputFileName contains a wildcard
+        if (config.outputFileName.includes('*')) {
+            return config.outputFileName.replace('*', inputFileNameWithoutExtension);
+        }
+        
+        // Use the specified outputFileName as-is
+        return config.outputFileName;
     }
 
     /**
@@ -97,15 +100,12 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
         vscode.window.showInformationMessage('Executing process...');
     
         // Ensure the output directory exists
-        const outputPathParts = config.outputFolder.split(/[\\/]/);
-        const outputFolderUri =
-            outputPathParts[outputPathParts.length - 1] !== 'output'
-                ? vscode.Uri.joinPath(vscode.Uri.file(config.outputFolder), 'output')
-                : vscode.Uri.file(config.outputFolder);
+        // Ensure output folder path is properly normalized
+        const outputFolder = config.outputFolder.replace(/\\/g, '/');
+        const outputFolderUri = vscode.Uri.file(outputFolder);
     
         await vscode.workspace.fs.createDirectory(outputFolderUri);
     
-        const outputFileExtension = this.getOutputFileExtension(config);
         const outputFileUris: string[] = [];
     
         for (const input of config.input) {
@@ -120,10 +120,10 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
         
                     for (const file of files) {
                         const filePath = path.join(input.value, file);
-                        await this.processFile.call(this, filePath, config, outputFileExtension, outputFolderUri, outputFileUris);
+                        await this.processFile.call(this, filePath, config, outputFolderUri, outputFileUris);
                     }
                 } else {
-                    await this.processFile.call(this, input.value, config, outputFileExtension, outputFolderUri, outputFileUris);
+                    await this.processFile.call(this, input.value, config, outputFolderUri, outputFileUris);
                 }
             } catch (error) {
                 vscode.window.showErrorMessage(`Error processing input ${input.value}: ${error instanceof Error ? error.message : String(error)}`);
@@ -135,7 +135,7 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
         return outputFileUris;
     }
 
-    async processFile(filePath: string, config: TransformerConfig, outputFileExtension: string, outputFolderUri: vscode.Uri, outputFileUris: string[]) {
+    async processFile(filePath: string, config: TransformerConfig, outputFolderUri: vscode.Uri, outputFileUris: string[]) {
         try {
             const inputData = fs.readFileSync(filePath, 'utf-8');
     

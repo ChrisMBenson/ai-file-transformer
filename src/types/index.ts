@@ -16,7 +16,6 @@ export interface TransformerConfig {
     input: Input[];
     outputFolder: string;
     outputFileName: string | null;
-    outputFileExtension: string | null;
     temperature: number;
     maxTokens: number;
     preserveStructure: boolean;

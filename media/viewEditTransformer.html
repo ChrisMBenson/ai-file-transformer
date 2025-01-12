@@ -222,15 +222,6 @@
                     <label for="outputFileNameInput">Output File Name:</label>
                     <input type="text" id="outputFileNameInput" class="form-control"></input>
                 </div>
-                <div class="form-group">
-                    <label for="outputFileExtensionInput">Output File Extension</label>
-                    <select id="outputFileExtensionInput" class="form-control">
-                        <option value=".txt">.txt</option>
-                        <option value=".md">.md</option>
-                        <option value=".json">.json</option>
-                        <option value=".xml">.xml</option>
-                    </select>
-                </div>
                 <button id="saveButton" class="btn-primary">Save Changes</button>
                 <button id="cancelButton" class="btn-secondary">Cancel</button>
             </div>
@@ -364,7 +355,7 @@
                         document.getElementById('maxTokenInput').value = currentConfig.maxTokens;
                         document.getElementById('preserveStructureInput').checked = currentConfig.preserveStructure;
                         document.querySelector(`input[name="processFormat"][value="${currentConfig.processFormat}"]`).checked = true;
-                        document.getElementById('outputFileExtensionInput').value = currentConfig.outputFileExtension;
+                        document.getElementById('outputFileNameInput').value = currentConfig.outputFileName;
                     }
 
                     // Set up edit button
@@ -475,7 +466,6 @@
                 input: currentConfig.input,
                 outputFolder: currentConfig.outputFolder,
                 outputFileName: document.getElementById('outputFileNameInput').value,
-                outputFileExtension: document.getElementById('outputFileExtensionInput').value,
                 temperature: parseFloat(document.getElementById('temperatureInput').value),
                 maxTokens: parseInt(document.getElementById('maxTokenInput').value),
                 preserveStructure: document.getElementById('preserveStructureInput').checked,

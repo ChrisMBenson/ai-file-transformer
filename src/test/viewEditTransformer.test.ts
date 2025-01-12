@@ -57,7 +57,6 @@ suite('ViewEditTransformer Tests', () => {
       required: true
     }],
     outputFolder: "outputfolder/",
-    outputFileExtension: ".txt",
     outputFileName: "output",
     temperature: 0.7,
     maxTokens: 1000,
