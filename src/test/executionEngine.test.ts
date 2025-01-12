@@ -46,9 +46,17 @@ suite('executeTransformers', () => {
       
       sandbox.stub(DefaultExecuter.prototype, 'execute').callsFake(mockExecuter.execute);
       sandbox.stub(require('fs'), 'existsSync').returns(true);
-      sandbox.stub(require('fs'), 'statSync').returns({ 
-        isFile: () => true,
-        isDirectory: () => true
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
+      sandbox.stub(require('fs'), 'readdirSync').returns(['file1.txt']);
+      sandbox.stub(require('fs'), 'statSync').callsFake((...args: unknown[]) => {
+        const path = args[0] as string;
+        if (path.includes('valid-file')) {
+          return { isFile: () => true, isDirectory: () => false };
+        }
+        if (path.includes('valid-folder')) {
+          return { isFile: () => false, isDirectory: () => true };
+        }
+        throw new Error('Path does not exist');
       });
 
       await executeTransformers(validConfig);
@@ -80,6 +88,7 @@ suite('executeTransformers', () => {
         }]
       };
       sandbox.stub(require('fs'), 'existsSync').withArgs('invalid-path').returns(false);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
 
       await assert.rejects(
         () => executeTransformers(invalidConfig),
@@ -95,6 +104,8 @@ suite('executeTransformers', () => {
       sandbox.stub(require('fs'), 'existsSync')
         .withArgs('valid-file.txt').returns(true)
         .withArgs('valid-folder').returns(true);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
+      sandbox.stub(require('fs'), 'readdirSync').returns(['file1.txt']);
       sandbox.stub(require('fs'), 'statSync')
         .withArgs('valid-file.txt').returns({ isFile: () => true })
         .withArgs('valid-folder').returns({ isDirectory: () => true });
@@ -113,6 +124,7 @@ suite('executeTransformers', () => {
       sandbox.stub(require('fs'), 'existsSync')
         .withArgs('invalid-folder').returns(false)
         .withArgs('valid-file.txt').returns(true);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
       sandbox.stub(require('fs'), 'statSync')
         .withArgs('valid-file.txt').returns({ isFile: () => true });
 
@@ -135,6 +147,8 @@ suite('executeTransformers', () => {
       sandbox.stub(require('fs'), 'existsSync')
         .withArgs('valid-file.txt').returns(true)
         .withArgs('valid-folder').returns(true);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
+      sandbox.stub(require('fs'), 'readdirSync').returns(['file1.txt']);
       sandbox.stub(require('fs'), 'statSync')
         .withArgs('valid-file.txt').returns({ isFile: () => true })
         .withArgs('valid-folder').returns({ isDirectory: () => true });
@@ -157,6 +171,7 @@ suite('executeTransformers', () => {
       sandbox.stub(require('fs'), 'existsSync')
         .withArgs('valid-file.txt').returns(true)
         .withArgs('valid-folder').returns(true);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
       sandbox.stub(require('fs'), 'statSync')
         .withArgs('valid-file.txt').returns({ isFile: () => true })
         .withArgs('valid-folder').returns({ isDirectory: () => true });
@@ -176,6 +191,7 @@ suite('executeTransformers', () => {
       sandbox.stub(require('fs'), 'existsSync')
         .withArgs('valid-file.txt').returns(true)
         .withArgs('valid-folder').returns(true);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
       sandbox.stub(require('fs'), 'statSync')
         .withArgs('valid-file.txt').returns({ isFile: () => true })
         .withArgs('valid-folder').returns({ isDirectory: () => true });
@@ -231,6 +247,7 @@ suite('executeTransformers', () => {
       sandbox.stub(require('fs'), 'existsSync')
         .withArgs('valid-file.txt').returns(true)
         .withArgs('valid-folder').returns(true);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
       sandbox.stub(require('fs'), 'statSync')
         .withArgs('valid-file.txt').returns({ isFile: () => true })
         .withArgs('valid-folder').returns({ isDirectory: () => true });
@@ -267,6 +284,8 @@ suite('executeTransformers', () => {
         .withArgs('valid-file1.txt').returns(true)
         .withArgs('valid-file2.txt').returns(true)
         .withArgs('valid-folder').returns(true);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
+      sandbox.stub(require('fs'), 'readdirSync').returns(['file1.txt']);
       sandbox.stub(require('fs'), 'statSync')
         .withArgs('valid-file1.txt').returns({ isFile: () => true })
         .withArgs('valid-file2.txt').returns({ isFile: () => true })
@@ -294,6 +313,8 @@ suite('executeTransformers', () => {
       sandbox.stub(require('fs'), 'existsSync')
         .withArgs('valid-folder').returns(true)
         .withArgs('valid-folder').returns(true);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
+      sandbox.stub(require('fs'), 'readdirSync').returns(['file1.txt']);
       sandbox.stub(require('fs'), 'statSync')
         .withArgs('valid-folder').returns({ isDirectory: () => true });
 
@@ -315,6 +336,8 @@ suite('executeTransformers', () => {
       sandbox.stub(require('fs'), 'existsSync')
         .withArgs('valid-file.txt').returns(true)
         .withArgs('valid-folder').returns(true);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
+      sandbox.stub(require('fs'), 'readdirSync').returns(['file1.txt']);
       sandbox.stub(require('fs'), 'statSync')
         .withArgs('valid-file.txt').returns({ isFile: () => true })
         .withArgs('valid-folder').returns({ isDirectory: () => true });
@@ -336,6 +359,8 @@ suite('executeTransformers', () => {
       sandbox.stub(require('fs'), 'existsSync')
         .withArgs('valid-file.txt').returns(true)
         .withArgs('valid-folder').returns(true);
+      sandbox.stub(require('fs'), 'accessSync').returns(undefined);
+      sandbox.stub(require('fs'), 'readdirSync').returns(['file1.txt']);
       sandbox.stub(require('fs'), 'statSync')
         .withArgs('valid-file.txt').returns({ isFile: () => true })
         .withArgs('valid-folder').returns({ isDirectory: () => true });

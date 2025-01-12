@@ -1,6 +1,7 @@
 General:
 "compilerOptions": "module": "Node16", "target": "ES2022"...
 This is typescript, so only reference other ts files, no referencing .js
+do not execute 'npx tsc' directly - use 'npm run compile' if needed
 
 Testing:
 Do NOT use Jest!

@@ -41,30 +41,61 @@ export function isValidFolderPath(folderPath: string): boolean {
  * @throws Error if validation fails
  */
 function validateConfig(config: TransformerConfig): void {
-  // Validate inputs
-  const hasValidInput = config.input.some(input => {
+  // Validate read and write access
+  function hasReadWriteAccess(filePath: string): boolean {
+    try {
+      fs.accessSync(filePath, fs.constants.R_OK | fs.constants.W_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // Validate presence of files in a directory
+  function hasValidFiles(folderPath: string): boolean {
+    try {
+      const files = fs.readdirSync(folderPath);
+      return files.length > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  // First check if input array is empty
+  if (!config.input || config.input.length === 0) {
+    throw new Error('Validation failed: At least one valid input is required');
+  }
+
+  // Then validate each input
+  for (const input of config.input) {
     if (!input.value || input.value.trim() === '') {
-      throw new Error(`Input "${input.name}" is empty`);
+      throw new Error(`Validation failed: Input "${input.name}" is empty: ${input.value}`);
     }
     
     if (!isValidFilePath(input.value) && !isValidFolderPath(input.value)) {
-      throw new Error(`Input "${input.name}" path does not exist or is invalid: ${input.value}`);
+      throw new Error(`Validation failed: Input "${input.name}" path does not exist or is invalid: ${input.value}`);
     }
     
-    return true;
-  });
+    if (!hasReadWriteAccess(input.value)) {
+      throw new Error(`Validation failed: No read/write access to input "${input.name}" path: ${input.value}`);
+    }
 
-  if (!hasValidInput) {
-    throw new Error('At least one valid input is required');
+    if (isValidFolderPath(input.value) && !hasValidFiles(input.value)) {
+      throw new Error(`Validation failed: Input folder "${input.name}" is empty: ${input.value}`);
+    }
   }
 
   // Validate output folder
   if (!config.outputFolder || config.outputFolder.trim() === '') {
-    throw new Error('Output folder location is required');
+    throw new Error('Validation failed: Output folder location is required');
   }
 
   if (!isValidFolderPath(config.outputFolder)) {
-    throw new Error(`Output folder path is invalid or does not exist: ${config.outputFolder}`);
+    throw new Error(`Validation failed: Output folder path is invalid or does not exist: ${config.outputFolder}`);
+  }
+
+  if (!hasReadWriteAccess(config.outputFolder)) {
+    throw new Error(`Validation failed: No read/write access to output folder path: ${config.outputFolder}`);
   }
 }
 
@@ -126,7 +157,7 @@ export async function executeTransformers(config: TransformerConfig): Promise<vo
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logOutputChannel.error(`Validation failed for transformer "${transformerName}": ${errorMessage}`);
-    throw new Error(`Validation failed: ${errorMessage}`);
+    throw new Error(errorMessage);
   }
 
   logOutputChannel.info(`Starting transformer execution for "${transformerName}"...`);
