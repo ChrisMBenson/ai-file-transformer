@@ -54,7 +54,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                         break;
                     case 'selectTransformer':
                         vscode.window.showInformationMessage(`Selected Transformer: ${message.transformer}`);
-                        break;
+                            break;
                     case 'openFileDialog':
                         const config = JSON.parse(message.data) as TransformerConfig;
                         const isOutput = message.isOutput;
