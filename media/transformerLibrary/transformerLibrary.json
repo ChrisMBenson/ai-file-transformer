@@ -10,6 +10,11 @@
             "id": "T002",
             "name": "XmlToJson",
             "folder": "T002-XmlToJson"
+        },
+        {
+            "id": "T003",
+            "name": "CreateTestCases",
+            "folder": "T003-CreateTestCases"
         }
     ]
 }

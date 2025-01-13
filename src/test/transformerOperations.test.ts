@@ -16,7 +16,7 @@ suite('Transformer Operations Test Suite', () => {
       id: 'test-transformer',
       name: 'Test Transformer',
       description: 'Test description',
-      prompt: 'Test prompt',
+      prompt: 'Test prompt {{content}}',
       input: [],
       outputFolder: "outputfolder/",
     outputFileName: "output",
@@ -38,7 +38,7 @@ suite('Transformer Operations Test Suite', () => {
       id: 'test-transformer',
       name: 'Initial Name',
       description: 'Initial Description',
-      prompt: 'Initial Prompt',
+      prompt: 'Initial Prompt {{content}}',
       input: [],
       outputFolder: "outputfolder/",
       outputFileName: "output",
@@ -51,7 +51,7 @@ suite('Transformer Operations Test Suite', () => {
     await manager.editTransformer('test-transformer', {
       name: 'Updated Name',
       description: 'Updated Description',
-      prompt: 'Updated Prompt',
+      prompt: 'Updated Prompt {{content}}',
       temperature: 0.8
     });
 
@@ -60,7 +60,7 @@ suite('Transformer Operations Test Suite', () => {
     assert.ok(transformer);
     assert.strictEqual(transformer.name, 'Updated Name');
     assert.strictEqual(transformer.description, 'Updated Description');
-    assert.strictEqual(transformer.prompt, 'Updated Prompt');
+    assert.strictEqual(transformer.prompt, 'Updated Prompt {{content}}');
     assert.strictEqual(transformer.temperature, 0.8);
   });
 
@@ -70,7 +70,7 @@ suite('Transformer Operations Test Suite', () => {
       id: 'test-transformer',
       name: 'Test Transformer',
       description: 'Test description',
-      prompt: 'Test prompt',
+      prompt: 'Test prompt {{content}}',
       input: [],
       outputFolder: "outputfolder/",
       outputFileName: "output",
@@ -93,7 +93,7 @@ suite('Transformer Operations Test Suite', () => {
       id: 'original-transformer',
       name: 'Original Transformer',
       description: 'Original description',
-      prompt: 'Original prompt',
+      prompt: 'Original prompt {{content}}',
       input: [],
       outputFolder: "outputfolder/",
       outputFileName: "output",
@@ -113,7 +113,7 @@ suite('Transformer Operations Test Suite', () => {
     assert.ok(duplicate);
     assert.strictEqual(duplicate.name, 'Original Transformer (Copy)');
     assert.strictEqual(duplicate.description, 'Original description');
-    assert.strictEqual(duplicate.prompt, 'Original prompt');
+    assert.strictEqual(duplicate.prompt, 'Original prompt {{content}}');
     assert.strictEqual(duplicate.temperature, 0.7);
     assert.notStrictEqual(original.id, duplicate.id);
   });

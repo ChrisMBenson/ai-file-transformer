@@ -107,10 +107,47 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
 
     /**
      * Generates a user message based on the input data and configuration.
-     * Override to customize message generation logic.
+     * Replaces placeholders in the format {{name}} with values from config.input.
+     * If the value is a path, reads the file content. Otherwise uses the value directly.
+     * The special placeholder {{content}} is replaced with the data parameter.
      */
     generateUserMessage(config: TransformerConfig, data: string): string {
-        return (config.prompt || '') + data;
+        if (!config.prompt) {
+            return data;
+        }
+
+        // Replace {{content}} with the data
+        let message = config.prompt.replace('{{content}}', data);
+
+        // Find all other placeholders
+        const placeholderRegex = /\{\{([^{}]+)\}\}/g;
+        let match;
+        
+        while ((match = placeholderRegex.exec(config.prompt)) !== null) {
+            const placeholder = match[1];
+            if (placeholder === 'content') {continue;} // Already handled
+            
+            // Find matching input
+            const input = config.input.find(i => i.name === placeholder);
+            if (!input) {continue;}
+            
+            let value = input.value;
+            
+            // If value is a path, read the file
+            if (fs.existsSync(value) && fs.statSync(value).isFile()) {
+                try {
+                    value = fs.readFileSync(value, 'utf-8');
+                } catch (error) {
+                    console.error(`Error reading file ${value}:`, error);
+                    continue;
+                }
+            }
+            
+            // Replace the placeholder
+            message = message.replace(new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g'), value);
+        }
+        
+        return message;
     }
 
     /**
@@ -152,20 +189,24 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
                 }
             }
         };
-    
-        for (const input of config.input) {
-            try {
-                const inputStats = fs.statSync(input.value);
-    
-                if (inputStats.isDirectory()) {
-                    await processDirectory(input.value);
-                } else {
-                    await this.processFileWithSubdirectoryStructure(input.value, path.basename(input.value), config, outputFolderUri, outputFileUris);
-                }
-            } catch (error) {
-                vscode.window.showErrorMessage(`Error processing input ${input.value}: ${error instanceof Error ? error.message : String(error)}`);
-            }
+
+        const contentInput = config.input.find(input => input.name === 'content');
+        if (!contentInput) {
+            throw new Error('No input with name "content" found');
         }
+
+        try {
+            const inputStats = fs.statSync(contentInput.value);
+
+            if (inputStats.isDirectory()) {
+                await processDirectory(contentInput.value);
+            } else {
+                await this.processFileWithSubdirectoryStructure(contentInput.value, path.basename(contentInput.value), config, outputFolderUri, outputFileUris);
+            }
+        } catch (error) {
+            vscode.window.showErrorMessage(`Error processing input ${contentInput.value}: ${error instanceof Error ? error.message : String(error)}`);
+        }
+        
     
         if (!this.shouldStop) {
             vscode.window.showInformationMessage('Transformation complete.');

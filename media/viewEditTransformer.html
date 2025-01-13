@@ -325,17 +325,39 @@
 
                         '<div class="transformer-field">' +
                         '<div class="field-row">' +
-                        '<span class="field-label">Input:</span>' +
+                        '<span class="field-label">Input Content:</span>' +
                         '<div class="field-value">' +
                         (currentConfig.input && currentConfig.input.length > 0 ?
-                            currentConfig.input.map(i =>
-                                '<div class="input-group">' +
-                                '<label class="input-label">' + escapeHtml(i.name || '') + ':</label>' +
-                                '<input class="browse-input-field" type="text" value="' + escapeHtml(i.value || '') + '" readonly>' +
-                                '<button class="btn-primary browseInputButton" data-input-name="' + escapeHtml(i.name || '') + '">Browse</button>' +
-                                '</div>'
-                            ).join('') :
+                            currentConfig.input.map(i => {
+                                if(i.name=="content"){
+                                    let content='<div class="input-group">' +
+                                    '<label class="input-label">' + escapeHtml(i.name || '') + ':</label>' +
+                                    '<input class="browse-input-field" type="text" value="' + escapeHtml(i.value || '') + '" readonly>' +
+                                    '<button class="btn-primary browseInputButton" data-input-name="' + escapeHtml(i.name || '') + '">Browse</button>' +
+                                    '</div>'
+                                    return content;
+                                }
+                            }).join('') :
                             '<span>No inputs defined</span>'
+                        ) +
+                        '</div></div></div>' +
+                        
+                        '<div class="transformer-field">' +
+                        '<div class="field-row">' +
+                        '<span class="field-label">Other Inputs</span>' +
+                        '<div class="field-value">' +
+                            (currentConfig.input && currentConfig.input.length > 1 ?
+                            currentConfig.input.map(i => {
+                                if(i.name!='content'){
+                                    let content='<div class="input-group">' +
+                                    '<label class="input-label">' + escapeHtml(i.name || '') + ':</label>' +
+                                    '<input class="browse-input-field" type="text" value="' + escapeHtml(i.value || '') + '" readonly>' +
+                                    '<button class="btn-primary browseInputButton" data-input-name="' + escapeHtml(i.name || '') + '">Browse</button>' +
+                                    '</div>'
+                                    return content;
+                                }
+                         }).join('') :
+                            '<span>No additional inputs defined</span>'
                         ) +
                         '</div></div></div>' +
 

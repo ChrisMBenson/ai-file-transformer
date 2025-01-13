@@ -46,7 +46,7 @@ suite('TransformerManager Behavior Tests', () => {
     id: 'test-transformer',
     name: 'Test Transformer',
     description: 'Test description',
-    prompt: 'Test prompt',
+    prompt: 'Test prompt {{content}}',
     input: [{
       name: 'test-input',
       description: 'Test input',

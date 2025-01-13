@@ -120,6 +120,33 @@ export class TransformerManager {
         
         // Validate the rest of the config
         this.validateTransformerConfig(config);
+
+        // Extract placeholders from prompt
+        const placeholderRegex = /\{\{([^}]+)\}\}/g;
+        const placeholders = new Set<string>();
+        let match;
+        while ((match = placeholderRegex.exec(config.prompt)) !== null) {
+            placeholders.add(match[1]);
+        }
+
+        // Update input configuration based on placeholders
+        const newInput = [];
+        for (const placeholder of placeholders) {
+            // Find existing input with matching name
+            const existingInput = config.input.find(input => input.name === placeholder);
+            
+            // Create new input if it doesn't exist
+            newInput.push(existingInput || {
+                name: placeholder,
+                description: `Input for ${placeholder}`,
+                required: true,
+                type: 'string', // Default type
+                value: '' // Default empty value
+            });
+        }
+
+        // Remove any inputs that don't have corresponding placeholders
+        config.input = newInput.filter(input => placeholders.has(input.name));
         
         // Update the transformer
         console.log('Updating transformer:', config);
@@ -147,7 +174,12 @@ export class TransformerManager {
 
     private currentExecution: { cancel: () => void } | null = null;
 
-    async executeTransformer(config: TransformerConfig): Promise<void> {
+    /**
+     * Execute a transformer configuration
+     * @param config Transformer configuration to execute
+     * @throws {TransformerError} If execution fails
+     */
+    public async executeTransformer(config: TransformerConfig): Promise<void> {
         try {
             // Validate config before execution
             this.validateTransformerConfig(config);
@@ -162,7 +194,10 @@ export class TransformerManager {
         }
     }
 
-    async stopExecution(): Promise<void> {
+    /**
+     * Stop current transformer execution
+     */
+    public async stopExecution(): Promise<void> {
         stopExecution();
     }
 
@@ -207,6 +242,9 @@ export class TransformerManager {
         }
         if (!config.prompt || typeof config.prompt !== 'string') {
             throw new TransformerValidationError('Transformer prompt is required');
+        }
+        if (!config.prompt.includes('{{content}}')) {
+            throw new TransformerValidationError('Transformer prompt must contain {{content}} placeholder');
         }
 
         // Temperature validation

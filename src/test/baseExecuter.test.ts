@@ -56,7 +56,7 @@ suite('BaseExecuter Test Suite', () => {
   });
 
   test('should generate correct user message', () => {
-    const config: MockTransformerConfig = { prompt: 'Prefix: ' } as any;
+    const config: MockTransformerConfig = { prompt: 'Prefix: {{content}}' } as any;
     const data = 'sample input';
     const message = executer.generateUserMessage(config, data);
 

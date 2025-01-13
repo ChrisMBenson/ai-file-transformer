@@ -14,7 +14,6 @@
     ],
     "outputFolder": "/",
     "outputFileName": "*.json",
-    "aiModel": "gpt-4o",
     "temperature": 0.7,
     "maxTokens": 1000,
     "processFormat": "eachFile"

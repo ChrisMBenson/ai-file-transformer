@@ -22,7 +22,7 @@ suite('executeTransformers', () => {
     id: 'test-transformer',
     name: 'Test Transformer',
     description: 'Test transformer description',
-    prompt: 'Test prompt',
+    prompt: 'Test prompt {{content}}',
     input: [{
       name: 'input1',
       description: 'Test input',
