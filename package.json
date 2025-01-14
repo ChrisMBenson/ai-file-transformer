@@ -2,7 +2,7 @@
   "name": "ai-file-transformer",
   "displayName": "AI File Transformer",
   "description": "Tool for transforming files into different formats using AI",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "AIStudio",
   "repository": {
     "type": "git",
