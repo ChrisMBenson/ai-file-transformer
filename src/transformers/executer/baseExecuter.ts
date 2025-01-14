@@ -277,7 +277,7 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
      */
     async sendToLLM(prompt: string): Promise<string> {
         const llmClient = new LLMClient();
-        logOutputChannel.error('Sending request to LLM:', (await llmClient.getSelectedAiProvider()).toString());
+        logOutputChannel.info('Sending request to LLM:', (await llmClient.getSelectedAiProvider()).toString());
         try {
             return await llmClient.sendRequest(prompt);
         } catch (error) {
