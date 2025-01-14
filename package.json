@@ -57,6 +57,11 @@
           "type": "string",
           "description": "Model Endpoint to use if applicable",
           "scope": "application"
+        },
+        "fuzorAiTransformer.apiVersion": {
+          "type": "string",
+          "description": "API Version to use if applicable",
+          "scope": "application"
         }
       }
     },

@@ -2,7 +2,9 @@ import * as assert from 'assert';
 import * as sinon from 'sinon';
 import * as mockVSCode from '../test/mocks/vscode';
 import { createOpenAIMock, OpenAIMock } from '../test/mocks/openai';
-import { LLMClient, LLMMessage, OpenAIClient } from '../transformers/llmFactory';
+import { LLMClient } from '../llm/llmClient';
+import { LLMMessage } from '../llm/llmBase';
+import { OpenAIClient } from '../llm/openai';
 import { ConfigurationManager, AIProvider } from '../config/configurationManager';
 import OpenAI from 'openai';
 

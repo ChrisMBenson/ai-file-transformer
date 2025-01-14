@@ -6,7 +6,8 @@ export enum AIProvider {
     OpenAI = 'OpenAI',
     AzureOpenAI = 'Azure OpenAI',
     GoogleGemini = 'Google Gemini',
-    OpenRouter = 'OpenRouter'
+    OpenRouter = 'OpenRouter',
+    DeepSeek = 'DeepSeek',
 }
 
 export class ConfigurationManager {
@@ -15,6 +16,7 @@ export class ConfigurationManager {
     private static readonly API_KEY = 'apiKey';
     private static readonly MODEL_NAME_KEY = 'modelName';
     private static readonly MODEL_ENDPOINT = 'modelEndpoint';
+    private static readonly API_VERSION = 'apiVersion';
     private static readonly ACCEPT_TERMS = 'acceptTerms';
 
     static getAcceptTerms(): boolean {
@@ -57,7 +59,6 @@ export class ConfigurationManager {
         return config.update(this.API_KEY, apiKey, vscode.ConfigurationTarget.Global);
     }
 
-
     static getModelEndpoint(): string | undefined {
         const config = vscode.workspace.getConfiguration(this.SECTION);
         return config.get<string>(this.MODEL_ENDPOINT);
@@ -66,6 +67,16 @@ export class ConfigurationManager {
     static setModelEndpoint(apiKey: string): Thenable<void> {
         const config = vscode.workspace.getConfiguration(this.SECTION);
         return config.update(this.MODEL_ENDPOINT, apiKey, vscode.ConfigurationTarget.Global);
+    }
+
+    static getApiVersion(): string | undefined {
+        const config = vscode.workspace.getConfiguration(this.SECTION);
+        return config.get<string>(this.API_VERSION);
+    }
+
+    static setApiVersion(apiVersion: string): Thenable<void> {
+        const config = vscode.workspace.getConfiguration(this.SECTION);
+        return config.update(this.API_VERSION, apiVersion, vscode.ConfigurationTarget.Global);
     }
 
     static async promptForAPIKey(): Promise<void> {

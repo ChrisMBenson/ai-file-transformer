@@ -5,7 +5,7 @@ import { logOutputChannel } from '../extension';
 import { TransformerConfig } from '../types';
 import { TransformerManager } from '../transformers/transformerManager';
 import { TransformersProvider } from '../providers/TransformersProvider';
-import { LLMClient } from '../transformers/llmFactory';
+import { LLMClient } from '../llm/llmClient';
 
 export class ViewEditTransformer implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
