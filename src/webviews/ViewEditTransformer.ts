@@ -294,7 +294,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
 
             // Register command for opening prompt in editor
             this.context.subscriptions.push(
-                vscode.commands.registerCommand('ai-file-transformer.openPromptInEditor', async () => {
+                vscode.commands.registerCommand('fuzor-ai-transformer.openPromptInEditor', async () => {
                     if (this._view) {
                         this._view.webview.postMessage({
                             command: 'openPromptInEditor'

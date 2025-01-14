@@ -1,5 +1,5 @@
 /**
- * Custom error types for the AI File Transformer extension
+ * Custom error types for the Fuzor AI Transformer extension
  */
 
 export class TransformerError extends Error {

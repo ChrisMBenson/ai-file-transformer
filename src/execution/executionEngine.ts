@@ -2,6 +2,7 @@ import { logOutputChannel } from '../extension';
 import { TransformerConfig } from '../types';
 import { ExecuterLoader } from "../transformers/executer/executerLoader";
 import { DefaultExecuter } from "../transformers/executer/defaultExecuter";
+import { ConfigurationManager } from '../config/configurationManager';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
@@ -59,6 +60,10 @@ function validateConfig(config: TransformerConfig): void {
     } catch {
       return false;
     }
+  }
+
+  if(ConfigurationManager.getAcceptTerms() === false) {
+    throw new Error('Validation failed: You must accept the terms of service to use this extension. Accept terms in Settings');
   }
 
   // First check if input array is empty

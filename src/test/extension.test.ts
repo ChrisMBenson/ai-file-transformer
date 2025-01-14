@@ -7,7 +7,7 @@ suite('Extension Behavior Tests', () => {
 
   suiteSetup(async () => {
     // Activate the extension
-    const extension = vscode.extensions.getExtension('AIStudio.ai-file-transformer');
+    const extension = vscode.extensions.getExtension('Fuzor.fuzor-ai-transformer');
     if (!extension) {
       throw new Error('Extension not found');
     }
@@ -16,12 +16,12 @@ suite('Extension Behavior Tests', () => {
 
   test('should register all commands', async () => {
     const commands = await vscode.commands.getCommands(true);
-    console.log('Registered commands:', commands.filter(c => c.startsWith('ai-file-transformer')));
+    console.log('Registered commands:', commands.filter(c => c.startsWith('fuzor-ai-transformer')));
     const expectedCommands = [
-      'ai-file-transformer.executeTransformer',
-      'ai-file-transformer.openSettings'
+      'fuzor-ai-transformer.executeTransformer',
+      'fuzor-ai-transformer.openSettings'
     ];
-    
+
     expectedCommands.forEach(command => {
       assert.ok(commands.includes(command), `Command ${command} not registered`);
     });
@@ -29,7 +29,7 @@ suite('Extension Behavior Tests', () => {
 
   test('should handle invalid file gracefully', async () => {
     const invalidUri = vscode.Uri.file('non-existent-file.txt');
-    
+
     try {
       await vscode.commands.executeCommand('extension.transformFile', invalidUri);
       assert.fail('Should have thrown error for invalid file');

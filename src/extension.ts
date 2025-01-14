@@ -11,7 +11,7 @@ export const outputChannel = vscode.window.createOutputChannel('AI Transformer O
 export const logOutputChannel = vscode.window.createOutputChannel('AI Transformer Logs', { "log": true });
 
 export async function activate(context: vscode.ExtensionContext) {
-    logOutputChannel.info("Activating AI File Transformer extension...");
+    logOutputChannel.info("Activating Fuzor AI Transformer extension...");
 
     // Initialize the Transformer Manager with storage
     const transformerStorage = new VSCodeTransformerStorage(context);
@@ -45,7 +45,7 @@ export async function activate(context: vscode.ExtensionContext) {
     // Register all commands
     const commands = [
         vscode.commands.registerCommand(
-            "ai-file-transformer.executeTransformer",
+            "fuzor-ai-transformer.executeTransformer",
             (item: TransformerTreeItem) => {
                 if (item?.config) {
                     executeTransformers(item.config);
@@ -65,11 +65,11 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand(
-            "ai-file-transformer.refresh",
+            "fuzor-ai-transformer.refresh",
             () => transformersProvider.refresh()
         ),
         vscode.commands.registerCommand(
-            "ai-file-transformer.addTransformer",
+            "fuzor-ai-transformer.addTransformer",
             async () => {
                 const { v4: uuidv4 } = require('uuid');
                 const newConfig: TransformerConfig = {
@@ -97,7 +97,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand(
-            "ai-file-transformer.editTransformer",
+            "fuzor-ai-transformer.editTransformer",
             async (item: TransformerTreeItem) => {
                 if (item?.config) {
                     viewEditTransformerProvider.updateContent(item.config, true);
@@ -105,7 +105,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand(
-            "ai-file-transformer.deleteTransformer",
+            "fuzor-ai-transformer.deleteTransformer",
             async (item: TransformerTreeItem) => {
                 if (item?.config) {
                     const answer = await vscode.window.showWarningMessage(
@@ -120,7 +120,7 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand(
-            "ai-file-transformer.duplicateTransformer",
+            "fuzor-ai-transformer.duplicateTransformer",
             async (item: TransformerTreeItem) => {
                 if (item?.config) {
                     const { v4: uuidv4 } = require('uuid');
@@ -131,9 +131,9 @@ export async function activate(context: vscode.ExtensionContext) {
             }
         ),
         vscode.commands.registerCommand(
-            "ai-file-transformer.openSettings",
+            "fuzor-ai-transformer.openSettings",
             () => {
-                vscode.commands.executeCommand('workbench.action.openSettings', 'AI File Transformer');
+                vscode.commands.executeCommand('workbench.action.openSettings', 'Fuzor AI Transformer');
             }
         )
     ];
@@ -145,11 +145,11 @@ export async function activate(context: vscode.ExtensionContext) {
         ...commands
     );
 
-    logOutputChannel.info("AI File Transformer extension activated successfully.");
+    logOutputChannel.info("Fuzor AI Transformer extension activated successfully.");
 }
 
 export function deactivate() {
-    logOutputChannel.info("Deactivating AI File Transformer extension...");
+    logOutputChannel.info("Deactivating Fuzor AI Transformer extension...");
     logOutputChannel.dispose();
     outputChannel.dispose();
 }

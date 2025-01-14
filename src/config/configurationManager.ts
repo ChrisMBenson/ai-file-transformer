@@ -10,11 +10,22 @@ export enum AIProvider {
 }
 
 export class ConfigurationManager {
-    private static readonly SECTION = 'aiFileTransformer';
+    private static readonly SECTION = 'fuzorAiTransformer';
     private static readonly PROVIDER_KEY = 'aiProvider';
     private static readonly API_KEY = 'apiKey';
     private static readonly MODEL_NAME_KEY = 'modelName';
     private static readonly MODEL_ENDPOINT = 'modelEndpoint';
+    private static readonly ACCEPT_TERMS = 'acceptTerms';
+
+    static getAcceptTerms(): boolean {
+        const config = vscode.workspace.getConfiguration(this.SECTION);
+        return config.get<boolean>(this.ACCEPT_TERMS, false);
+    }
+
+    static setAcceptTerms(accepted: boolean): Thenable<void> {
+        const config = vscode.workspace.getConfiguration(this.SECTION);
+        return config.update(this.ACCEPT_TERMS, accepted, vscode.ConfigurationTarget.Global);
+    }
 
     static getModelName(): string | undefined {
         const config = vscode.workspace.getConfiguration(this.SECTION);

@@ -1,12 +1,12 @@
 {
-  "name": "ai-file-transformer",
-  "displayName": "AI File Transformer",
+  "name": "fuzor-ai-transformer",
+  "displayName": "Fuzor AI Transformer",
   "description": "Tool for transforming files into different formats using AI",
-  "version": "0.0.2",
-  "publisher": "AIStudio",
+  "version": "0.0.3",
+  "publisher": "Fuzor",
   "repository": {
     "type": "git",
-    "url": "https://github.com/leewsimpson/ai-file-transformer.git"
+    "url": "https://github.com/leewsimpson/fuzor-ai-transformer.git"
   },
   "engines": {
     "vscode": "^1.96.0"
@@ -21,34 +21,41 @@
   ],
   "contributes": {
     "configuration": {
-      "title": "AI File Transformer",
+      "title": "Fuzor AI Transformer",
       "properties": {
-        "aiFileTransformer.aiProvider": {
+        "fuzorAiTransformer.acceptTerms": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Accept the [terms and conditions](https://github.com/leewsimpson/ai-file-transformer/blob/main/TERMS_AND_CONDITIONS.md) of using this extension"
+        },
+        "fuzorAiTransformer.aiProvider": {
           "type": "string",
           "enum": [
             "Anthropic",
             "OpenAI",
             "Azure OpenAI",
             "Google Gemini",
+            "DeepSeek",
+            "Custom",
             "OpenRouter"
           ],
           "default": "Azure OpenAI",
           "description": "Select the AI Provider to use for transformations"
         },
-        "aiFileTransformer.apiKey": {
+        "fuzorAiTransformer.apiKey": {
           "type": "string",
           "description": "API key for the selected AI model",
           "scope": "application",
           "sensitive": true
         },
-        "aiFileTransformer.modelName": {
+        "fuzorAiTransformer.modelName": {
           "type": "string",
-          "description": "Name of the AI model to use",
+          "description": "Name of the deployed model to use if applicable",
           "scope": "application"
         },
-        "aiFileTransformer.modelEndpoint": {
+        "fuzorAiTransformer.modelEndpoint": {
           "type": "string",
-          "description": "Model Endpoint to use",
+          "description": "Model Endpoint to use if applicable",
           "scope": "application"
         }
       }
@@ -56,14 +63,14 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "ai-file-transformer",
-          "title": "AI File Transformer",
+          "id": "fuzor-ai-transformer",
+          "title": "Fuzor AI Transformer",
           "icon": "media/transformer.svg"
         }
       ]
     },
     "views": {
-      "ai-file-transformer": [
+      "fuzor-ai-transformer": [
         {
           "id": "treeTransformer",
           "name": "Transformers"
@@ -82,40 +89,40 @@
         "title": "Select Item"
       },
       {
-        "command": "ai-file-transformer.showPanel",
-        "title": "AI File Transformer: Show Panel"
+        "command": "fuzor-ai-transformer.showPanel",
+        "title": "Fuzor AI Transformer: Show Panel"
       },
       {
-        "command": "ai-file-transformer.refresh",
+        "command": "fuzor-ai-transformer.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
       },
       {
-        "command": "ai-file-transformer.addTransformer",
+        "command": "fuzor-ai-transformer.addTransformer",
         "title": "Add Transformer",
         "icon": "$(add)"
       },
       {
-        "command": "ai-file-transformer.editTransformer",
+        "command": "fuzor-ai-transformer.editTransformer",
         "title": "Edit Transformer"
       },
       {
-        "command": "ai-file-transformer.executeTransformer",
+        "command": "fuzor-ai-transformer.executeTransformer",
         "title": "Execute Transformer",
         "icon": "$(play)"
       },
       {
-        "command": "ai-file-transformer.deleteTransformer",
+        "command": "fuzor-ai-transformer.deleteTransformer",
         "title": "Delete Transformer",
         "icon": "$(trash)"
       },
       {
-        "command": "ai-file-transformer.duplicateTransformer",
+        "command": "fuzor-ai-transformer.duplicateTransformer",
         "title": "Duplicate Transformer",
         "icon": "$(files)"
       },
       {
-        "command": "ai-file-transformer.openSettings",
+        "command": "fuzor-ai-transformer.openSettings",
         "title": "Open Settings",
         "icon": "$(gear)"
       },
@@ -127,39 +134,39 @@
     "menus": {
       "view/title": [
         {
-          "command": "ai-file-transformer.addTransformer",
+          "command": "fuzor-ai-transformer.addTransformer",
           "when": "view == treeTransformer",
           "group": "navigation@1"
         },
         {
-          "command": "ai-file-transformer.refresh",
+          "command": "fuzor-ai-transformer.refresh",
           "when": "view == treeTransformer",
           "group": "navigation@2"
         },
         {
-          "command": "ai-file-transformer.openSettings",
+          "command": "fuzor-ai-transformer.openSettings",
           "when": "view == treeTransformer",
           "group": "navigation@4"
         }
       ],
       "view/item/context": [
         {
-          "command": "ai-file-transformer.executeTransformer",
+          "command": "fuzor-ai-transformer.executeTransformer",
           "when": "view == treeTransformer && viewItem == transformer",
           "group": "inline"
         },
         {
-          "command": "ai-file-transformer.editTransformer",
+          "command": "fuzor-ai-transformer.editTransformer",
           "when": "view == treeTransformer && viewItem == transformer",
           "group": "1_modification@1"
         },
         {
-          "command": "ai-file-transformer.deleteTransformer",
+          "command": "fuzor-ai-transformer.deleteTransformer",
           "when": "view == treeTransformer && viewItem == transformer",
           "group": "1_modification@2"
         },
         {
-          "command": "ai-file-transformer.duplicateTransformer",
+          "command": "fuzor-ai-transformer.duplicateTransformer",
           "when": "view == treeTransformer && viewItem == transformer",
           "group": "1_modification@3"
         }

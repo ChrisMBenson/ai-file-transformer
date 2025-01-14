@@ -1,6 +1,6 @@
-# VS Code AI Transformers Plugin
+# VS Code 'Fuzor-AI Transformer' Extension
 
-The **VS Code AI Transformers Plugin** is a powerful extension that enables AI-powered file transformations directly within Visual Studio Code. This plugin provides a customisable interface for processing files using various AI models, making it easy to automate complex workflows and enhance productivity.
+The **VS Code 'Fuzor-AI Transformer' Extension** is a powerful extension that enables AI-powered file transformations directly within Visual Studio Code. This Extension provides a customisable interface for processing files using various AI models, making it easy to automate complex workflows and enhance productivity.
 
 This allows for saving, and maintaining of advanced prompts and templates, as well as the ability to work with files directly - instead of having to copy/paste with a chat interface.
 
@@ -16,7 +16,7 @@ This allows for saving, and maintaining of advanced prompts and templates, as we
 
 ## Use Cases
 
-The VS Code AI Transformers Plugin can be used for various scenarios, including:
+The VS Code 'Fuzor-AI Transformer' Extension can be used for various scenarios, including:
 
 1. **Source Code Documentation**:
    - Automatically generate documentation for code files
@@ -45,7 +45,7 @@ The VS Code AI Transformers Plugin can be used for various scenarios, including:
     - Generate unit tests for files / folders
     - Generate test automations
 
-![VS Code AI Transformers Plugin Interface](screenshot.png)
+![VS Code 'Fuzor-AI Transformer' Extension Interface](screenshot.png)
 
 ## [Design](design.md)
 
@@ -54,7 +54,7 @@ The VS Code AI Transformers Plugin can be used for various scenarios, including:
 2. In VS Code add the extention directly using the "install from VSIX"
 4. Configure your API keys in the settings:
    - Open VS Code settings
-   - Navigate to "AI Transformers" section
+   - Navigate to "'Fuzor-AI Transformer'" section
    - Enter API keys for your preferred AI providers
 5. Create your first transformer using the UI or via the command palette (`Ctrl+Shift+P` -> "Create Transformer")
 6. Configure:
