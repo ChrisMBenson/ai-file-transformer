@@ -26,14 +26,11 @@ suite('LLMFactory Tests', () => {
         // Create mock OpenAI instance
         openaiStub = createOpenAIMock(sandbox);
         
-        // Create mock OpenAI instance and inject it
-        openaiStub = createOpenAIMock(sandbox);
-        
         // Mock configuration
         sandbox.stub(ConfigurationManager, 'getAPIKey').returns('test-api-key');
         sandbox.stub(ConfigurationManager, 'getModelName').returns('gpt-4');
         sandbox.stub(ConfigurationManager, 'getAIProvider').returns(AIProvider.OpenAI);
-        sandbox.stub(ConfigurationManager, 'getTokenLimit').returns(4000);
+        sandbox.stub(ConfigurationManager, 'getTokenLimit').returns(1000);
         
         // Initialize client with mock OpenAI instance
         llmClient = new LLMClient();
@@ -66,7 +63,11 @@ suite('LLMFactory Tests', () => {
         const response = await llmClient.sendRequest('Test prompt');
         assert.equal(response, 'Mock response');
         sinon.assert.calledWith(openaiStub.chat.completions.create, sinon.match({
-            max_tokens: 4000
+            model: 'gpt-4',
+            messages: [ { role: 'user', content: 'Test prompt' } ],
+            temperature: 0.7,
+            max_tokens: 1000,
+            top_p: 0.9
         }));
     });
 
@@ -77,7 +78,11 @@ suite('LLMFactory Tests', () => {
         const response = await llmClient.sendRequest(messages);
         assert.equal(response, 'Mock response');
         sinon.assert.calledWith(openaiStub.chat.completions.create, sinon.match({
-            max_tokens: 4000
+            model: 'gpt-4',
+            messages: [ { role: 'user', content: 'Test message' } ],
+            temperature: 0.7,
+            max_tokens: 1000,
+            top_p: 0.9
         }));
     });
 
