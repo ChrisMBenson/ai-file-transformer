@@ -62,6 +62,12 @@
           "type": "string",
           "description": "API Version to use if applicable",
           "scope": "application"
+        },
+        "fuzorAiTransformer.tokenLimit": {
+          "type": "number",
+          "default": 4000,
+          "description": "Maximum number of tokens allowed in AI requests",
+          "scope": "application"
         }
       }
     },

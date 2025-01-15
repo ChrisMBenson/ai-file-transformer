@@ -21,7 +21,6 @@ suite('Transformer Operations Test Suite', () => {
       outputFolder: "outputfolder/",
     outputFileName: "output",
       temperature: 0.7,
-      maxTokens: 1000,
       processFormat: "eachFile",
     });
 
@@ -43,7 +42,6 @@ suite('Transformer Operations Test Suite', () => {
       outputFolder: "outputfolder/",
       outputFileName: "output",
       temperature: 0.7,
-      maxTokens: 1000,
       processFormat: "eachFile",
     });
 
@@ -75,7 +73,6 @@ suite('Transformer Operations Test Suite', () => {
       outputFolder: "outputfolder/",
       outputFileName: "output",
       temperature: 0.7,
-      maxTokens: 1000,
       processFormat: "eachFile",
     });
 
@@ -98,7 +95,6 @@ suite('Transformer Operations Test Suite', () => {
       outputFolder: "outputfolder/",
       outputFileName: "output",
       temperature: 0.7,
-      maxTokens: 1000,
       processFormat: "eachFile",
     });
 

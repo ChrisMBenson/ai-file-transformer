@@ -18,6 +18,7 @@ export class ConfigurationManager {
     private static readonly MODEL_ENDPOINT = 'modelEndpoint';
     private static readonly API_VERSION = 'apiVersion';
     private static readonly ACCEPT_TERMS = 'acceptTerms';
+    private static readonly TOKEN_LIMIT = 4000;
 
     static getAcceptTerms(): boolean {
         const config = vscode.workspace.getConfiguration(this.SECTION);
@@ -77,6 +78,34 @@ export class ConfigurationManager {
     static setApiVersion(apiVersion: string): Thenable<void> {
         const config = vscode.workspace.getConfiguration(this.SECTION);
         return config.update(this.API_VERSION, apiVersion, vscode.ConfigurationTarget.Global);
+    }
+
+    static getTokenLimit(): number {
+        const config = vscode.workspace.getConfiguration(this.SECTION);
+        const tokenLimit = config.get<number>(this.TOKEN_LIMIT.toString());
+        const validTokenLimit = tokenLimit ?? ConfigurationManager.TOKEN_LIMIT;
+        return validTokenLimit;
+    }
+
+    static setTokenLimit(tokenLimit: number): Thenable<void> {
+        this.validateTokenLimit(tokenLimit);
+        const config = vscode.workspace.getConfiguration(this.SECTION);
+        return config.update(this.TOKEN_LIMIT.toString(), tokenLimit, vscode.ConfigurationTarget.Global);
+    }
+
+    static getGlobalModelConfig(): any {
+        const config = vscode.workspace.getConfiguration(this.SECTION);
+        return {
+            tokenLimit: 4000,
+            temperature: 0.7,
+            topP: 0.9
+        };
+    }
+
+    static validateTokenLimit(tokenLimit: any): void {
+        if (typeof tokenLimit !== 'number' || tokenLimit <= 0) {
+            throw new Error('Token limit must be a positive number');
+        }
     }
 
     static async promptForAPIKey(): Promise<void> {

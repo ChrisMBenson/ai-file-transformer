@@ -33,6 +33,7 @@ suite('LLMFactory Tests', () => {
         sandbox.stub(ConfigurationManager, 'getAPIKey').returns('test-api-key');
         sandbox.stub(ConfigurationManager, 'getModelName').returns('gpt-4');
         sandbox.stub(ConfigurationManager, 'getAIProvider').returns(AIProvider.OpenAI);
+        sandbox.stub(ConfigurationManager, 'getTokenLimit').returns(4000);
         
         // Initialize client with mock OpenAI instance
         llmClient = new LLMClient();
@@ -64,7 +65,9 @@ suite('LLMFactory Tests', () => {
     test('should send request with string prompt', async () => {
         const response = await llmClient.sendRequest('Test prompt');
         assert.equal(response, 'Mock response');
-        sinon.assert.calledOnce(openaiStub.chat.completions.create);
+        sinon.assert.calledWith(openaiStub.chat.completions.create, sinon.match({
+            max_tokens: 4000
+        }));
     });
 
     test('should send request with message array', async () => {
@@ -73,7 +76,9 @@ suite('LLMFactory Tests', () => {
         ];
         const response = await llmClient.sendRequest(messages);
         assert.equal(response, 'Mock response');
-        sinon.assert.calledOnce(openaiStub.chat.completions.create);
+        sinon.assert.calledWith(openaiStub.chat.completions.create, sinon.match({
+            max_tokens: 4000
+        }));
     });
 
     test('should handle OpenAI API errors', async () => {

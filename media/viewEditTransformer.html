@@ -234,10 +234,6 @@
                     <input type="number" id="temperatureInput" class="form-control" min="0" max="1" step="0.1">
                 </div>
                 <div class="form-group">
-                    <label for="maxTokenInput">Max Tokens:</label>
-                    <input type="number" id="maxTokenInput" class="form-control" min="1000" max="30000" step="1000">
-                </div>
-                <div class="form-group">
                     <label for="processFormatInput">Process Format:</label>
                     <div id="processFormatInput" class="form-control">
                         <div class="form-check">
@@ -432,7 +428,6 @@
                         document.getElementById('descriptionInput').value = currentConfig.description;
                         document.getElementById('promptInput').value = currentConfig.prompt;
                         document.getElementById('temperatureInput').value = currentConfig.temperature;
-                        document.getElementById('maxTokenInput').value = currentConfig.maxTokens;
                         document.querySelector(`input[name="processFormat"][value="${currentConfig.processFormat}"]`).checked = true;
                         document.getElementById('outputFileNameInput').value = currentConfig.outputFileName;
                     }
@@ -508,7 +503,6 @@
                     document.getElementById('descriptionInput').value = currentConfig.description || '';
                     document.getElementById('promptInput').value = currentConfig.prompt || '';
                     document.getElementById('temperatureInput').value = currentConfig.temperature || 0;
-                    document.getElementById('maxTokenInput').value = currentConfig.maxTokens || 1000;
                     document.querySelector(`input[name="processFormat"][value="${currentConfig.processFormat}"]`).checked = true;
                     document.getElementById('outputFileNameInput').value = currentConfig.outputFileName || '';
 
@@ -610,7 +604,6 @@
                 outputFolder: currentConfig.outputFolder,
                 outputFileName: document.getElementById('outputFileNameInput').value,
                 temperature: parseFloat(document.getElementById('temperatureInput').value),
-                maxTokens: parseInt(document.getElementById('maxTokenInput').value),
                 processFormat: document.querySelector('input[name="processFormat"]:checked').value,
             };
 

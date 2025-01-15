@@ -17,7 +17,6 @@ export interface TransformerConfig {
     outputFolder: string;
     outputFileName: string | null;
     temperature: number;
-    maxTokens: number;
     processFormat: 'eachFile' | 'joinFiles';
 }
 

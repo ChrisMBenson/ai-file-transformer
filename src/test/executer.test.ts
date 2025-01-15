@@ -21,7 +21,6 @@ suite('Executer Test Suite', () => {
       outputFolder: 'output/',
       outputFileName: '*_out.md',
       temperature: 0.7,
-      maxTokens: 1000,
       processFormat: 'eachFile'
     };
     const inputPath = '/path/to/input/abc.txt';
@@ -40,7 +39,6 @@ suite('Executer Test Suite', () => {
       outputFolder: 'output/',
       outputFileName: 'output.txt',
       temperature: 0.7,
-      maxTokens: 1000,
       processFormat: 'eachFile'
     };
     const inputPath = '/path/to/input/abc.txt';
@@ -59,7 +57,6 @@ suite('Executer Test Suite', () => {
       outputFolder: 'output/',
       outputFileName: '',
       temperature: 0.7,
-      maxTokens: 1000,
       processFormat: 'eachFile'
     };
     const inputPath = '/path/to/input/abc.txt';
@@ -78,7 +75,6 @@ suite('Executer Test Suite', () => {
       outputFolder: 'output/',
       outputFileName: null,
       temperature: 0.7,
-      maxTokens: 1000,
       processFormat: 'eachFile'
     };
     const inputPath = '/path/to/input/abc.txt';
