@@ -63,7 +63,10 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             openLabel: 'Select File',
                             filters: {
                                 'All Files': ['*']
-                            }
+                            },
+                            defaultUri: vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 
+                                ? vscode.Uri.file(`${vscode.workspace.workspaceFolders[0].uri.fsPath}`) 
+                                : vscode.Uri.file(""),
                         };
 
                         if (message.isOutput) {

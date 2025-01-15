@@ -5,6 +5,7 @@ import { TransformersProvider, TransformerTreeItem } from './providers/Transform
 import { TransformerManager } from './transformers/transformerManager';
 import { TransformerConfig } from './types';
 import { executeTransformers } from './execution/executionEngine';
+import { count, log } from 'console';
 
 // Create output channel for logging
 export const outputChannel = vscode.window.createOutputChannel('AI Transformer Output');
@@ -49,6 +50,43 @@ export async function activate(context: vscode.ExtensionContext) {
             (item: TransformerTreeItem) => {
                 if (item?.config) {
                     executeTransformers(item.config);
+                } else {
+                    logOutputChannel.info("Error: No transformer configuration found");
+                }
+            }
+        ),
+        vscode.commands.registerCommand(
+            "fuzor-ai-transformer.exportTransformer",
+            (item: TransformerTreeItem) => {
+                if (item?.config) {
+
+                    let updatedInput = item.config.input.map((input) => {
+                        return {
+                            ...input,
+                            value: "/",
+                        };
+                    });
+                    let updatedConfig = {
+                        ...item.config,
+                        input: updatedInput,
+                        outputFolder: "/",
+                    };
+
+                    vscode.window.showSaveDialog({
+                        defaultUri: vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 
+                            ? vscode.Uri.file(`${vscode.workspace.workspaceFolders[0].uri.fsPath}/${updatedConfig.name}.fuzor`) 
+                            : vscode.Uri.file(`${updatedConfig.name}.fuzor`),
+                        filters: {
+                            'Fuzor Files': ['fuzor']
+                        },
+                        saveLabel: 'Export'
+                    }).then((uri) => {
+                        if (uri) {
+                            vscode.workspace.fs.writeFile(uri, Buffer.from(JSON.stringify([updatedConfig], null, 4)));
+                            logOutputChannel.info(`Exported transformer ${updatedConfig.name} to ${uri.fsPath}`);
+                            vscode.window.showInformationMessage(`Exported transformer ${updatedConfig.name} to ${uri.fsPath}`);
+                        }
+                    });
                 } else {
                     logOutputChannel.info("Error: No transformer configuration found");
                 }
@@ -135,7 +173,52 @@ export async function activate(context: vscode.ExtensionContext) {
             () => {
                 vscode.commands.executeCommand('workbench.action.openSettings', 'Fuzor AI Transformer');
             }
-        )
+        ),
+        vscode.commands.registerCommand(
+            "fuzor-ai-transformer.importTransformer",
+            async () => {
+                const options: vscode.OpenDialogOptions = {
+                    canSelectMany: false,
+                    openLabel: 'Select',
+                    filters: {
+                        'Fuzor Files': ['fuzor']
+                    },
+                    defaultUri: vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0 
+                        ? vscode.Uri.file(`${vscode.workspace.workspaceFolders[0].uri.fsPath}`) 
+                        : vscode.Uri.file(""),
+                };
+
+                const fileUri = await vscode.window.showOpenDialog(options);
+                if (fileUri && fileUri[0]) {
+                    try {
+                        const filePath = fileUri[0].fsPath;
+                        logOutputChannel.info(`Selected .fuzor file: ${filePath}`);
+                        
+                        // Read and parse the file
+                        const fileContents = await vscode.workspace.fs.readFile(fileUri[0]);
+                        const configs: TransformerConfig[] = JSON.parse(fileContents.toString());
+                        
+                        // Validate and import each config
+                        let count = 0;
+                        for (const config of configs) {
+                            try {
+                                await transformerManager.createTransformer(config);
+                                count++;
+                            } catch (error) {
+                                logOutputChannel.error(`Failed to import transformer ${config.name}: ${error}`);
+                                vscode.window.showErrorMessage(`Failed to import transformer ${config.name}: ${error}`);
+                            }
+                        }
+                        
+                        vscode.window.showInformationMessage(`Successfully imported ${count} of ${configs.length} transformers`);
+                        transformersProvider.refresh();
+                    } catch (error) {
+                        logOutputChannel.error(`Failed to import transformers: ${error}`);
+                        vscode.window.showErrorMessage(`Failed to import transformers: ${error}`);
+                    }
+                }
+            }
+        ),
     ];
 
     // Add everything to context subscriptions

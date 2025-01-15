@@ -2,7 +2,7 @@
   "name": "fuzor-ai-transformer",
   "displayName": "Fuzor AI Transformer",
   "description": "Tool for transforming files into different formats using AI",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "Fuzor",
   "repository": {
     "type": "git",
@@ -127,6 +127,16 @@
         "icon": "$(files)"
       },
       {
+        "command": "fuzor-ai-transformer.importTransformer",
+        "title": "Import Transformer",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "fuzor-ai-transformer.exportTransformer",
+        "title": "Export Transformer",
+        "icon": "$(cloud-download)"
+      },
+      {
         "command": "fuzor-ai-transformer.openSettings",
         "title": "Open Settings",
         "icon": "$(gear)"
@@ -152,11 +162,21 @@
           "command": "fuzor-ai-transformer.openSettings",
           "when": "view == treeTransformer",
           "group": "navigation@4"
+        },
+        {
+          "command": "fuzor-ai-transformer.importTransformer",
+          "when": "view == treeTransformer",
+          "group": "navigation@5"
         }
       ],
       "view/item/context": [
         {
           "command": "fuzor-ai-transformer.executeTransformer",
+          "when": "view == treeTransformer && viewItem == transformer",
+          "group": "inline"
+        },
+        {
+          "command": "fuzor-ai-transformer.exportTransformer",
           "when": "view == treeTransformer && viewItem == transformer",
           "group": "inline"
         },

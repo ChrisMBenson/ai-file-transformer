@@ -92,7 +92,7 @@ export class TransformerManager {
      * @throws {TransformerExistsError} If a transformer with the same name already exists
      * @throws {TransformerValidationError} If the configuration is invalid
      */
-    async createTransformer(config: TransformerConfig): Promise<void> {
+    public async createTransformer(config: TransformerConfig): Promise<void> {
         if (this.transformers.has(config.id)) {
             throw new TransformerExistsError(config.name);
         }
@@ -225,11 +225,10 @@ export class TransformerManager {
 
     /**
      * Validate transformer configuration
-     * @private
      * @param config Transformer configuration to validate
      * @throws {TransformerValidationError} If the configuration is invalid
      */
-    private validateTransformerConfig(config: TransformerConfig): void {
+    public validateTransformerConfig(config: TransformerConfig): void {
         // Basic required fields
         if (!config.id || typeof config.id !== 'string') {
             throw new TransformerValidationError('Transformer ID is required');
