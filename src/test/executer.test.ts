@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { AbstractBaseExecuter } from '../transformers/executer/baseExecuter';
+import { AbstractBaseExecuter } from '../execution/baseExecuter';
 import { TransformerConfig } from '../types';
 
 class TestExecuter extends AbstractBaseExecuter {}

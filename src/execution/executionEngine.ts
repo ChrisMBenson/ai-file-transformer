@@ -1,7 +1,7 @@
 import { logOutputChannel } from '../extension';
 import { TransformerConfig } from '../types';
-import { ExecuterLoader } from "../transformers/executer/executerLoader";
-import { DefaultExecuter } from "../transformers/executer/defaultExecuter";
+import { ExecuterLoader } from "./executerLoader";
+import { DefaultExecuter } from "./defaultExecuter";
 import { ConfigurationManager } from '../config/configurationManager';
 import * as path from 'path';
 import * as vscode from 'vscode';

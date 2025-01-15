@@ -3,7 +3,7 @@ import * as sinon from 'sinon';
 import * as vscode from 'vscode';
 import * as mockVSCode from '../test/mocks/vscode';
 import { executeTransformers, isValidFilePath, isValidFolderPath } from '../execution/executionEngine';
-import { DefaultExecuter } from '../transformers/executer/defaultExecuter';
+import { DefaultExecuter } from '../execution/defaultExecuter';
 import { ConfigurationManager } from '../config/configurationManager';
 import { TransformerConfig } from '../types';
 import { logOutputChannel } from '../extension';

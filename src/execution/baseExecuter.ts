@@ -2,9 +2,9 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { EventEmitter } from 'vscode';
-import { LLMClient } from '../../llm/llmClient';
-import { TransformerConfig, ProgressEvent } from '../../types';
-import { logOutputChannel } from '../../extension';
+import { LLMClient } from '../llm/llmClient';
+import { TransformerConfig, ProgressEvent } from '../types';
+import { logOutputChannel } from '../extension';
 
 
 
@@ -147,6 +147,10 @@ export abstract class AbstractBaseExecuter implements BaseExecuter {
             // Replace the placeholder
             message = message.replace(new RegExp(`\\{\\{${placeholder}\\}\\}`, 'g'), value);
         }
+
+        const promptPostFix = `The output will be written to a file ending with extension ${config.outputFileName} . Make sure the response only contains data of that type.`;
+
+        message = message + "\n" + promptPostFix;
         
         return message;
     }

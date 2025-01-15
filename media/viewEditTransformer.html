@@ -381,6 +381,10 @@
                         '<button id="editButton" class="full-width-button">Edit Transformer</button>' +
                         '</div>' +
 
+                        '<div class="preview-button-container">' +
+                        '<button id="previewLLMRequest" class="full-width-button">Preview LLM Request</button>' +
+                        '</div>' +
+
                         '<div class="Execute-button-container">' +
                         '<button id="executeButton" class="full-width-button">' +
                         '<span class="spinner" style="display: none;"></span>' +
@@ -436,6 +440,14 @@
                     // Set up edit button
                     document.getElementById('editButton')?.addEventListener('click', showEditForm);
 
+                     // Set up preview LLM request button
+                    document.getElementById('previewLLMRequest')?.addEventListener('click', () => {
+                        vscode.postMessage({
+                            command: 'previewLLMRequest',
+                            data: JSON.stringify(currentConfig)
+                        });
+                    });
+
                     // Set up execute button
                     document.getElementById('executeButton')?.addEventListener('click', () => {
                         const executeButton = document.getElementById('executeButton');
@@ -478,7 +490,7 @@
                             stopButton.style.display = 'block';
                         }
                         else if (event.data.command === 'executionFinished' || 
-                                 event.data.command === 'executionStopped') {
+                            event.data.command === 'executionStopped') {
                             const executeButton = document.getElementById('executeButton');
                             const stopButton = document.getElementById('stopButton');
                             const spinner = executeButton.querySelector('.spinner');
@@ -634,7 +646,7 @@
             }
         });
 
-        // Set up log inputs button
+        // Set up enhance prompt button
         document.getElementById('enhancePromptButton')?.addEventListener('click', () => {
             const name = document.getElementById('nameInput').value;
             const description = document.getElementById('descriptionInput').value;

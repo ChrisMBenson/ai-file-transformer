@@ -70,7 +70,7 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             options.canSelectFiles = false;
                             options.canSelectFolders = true;
                             options.openLabel = 'Select Folder';
-                        } else if (message.isInput && message.inputName === 'content') {
+                        } else if (message.inputName === 'content') {
                             options.canSelectFiles = true;
                             options.canSelectFolders = true;
                         }else{
@@ -235,6 +235,62 @@ export class ViewEditTransformer implements vscode.WebviewViewProvider {
                             }
                         }
                         break;
+                    case 'previewLLMRequest':
+                        try {
+                            const config = JSON.parse(message.data) as TransformerConfig;
+                            const inputFile = config.input?.find(i => i.name === 'content')?.value;
+                            
+                            if (!inputFile) {
+                                throw new Error('No input file selected');
+                            }
+
+                            if(!fs.existsSync(inputFile)){
+                                throw new Error('Input file does not exist');
+                            }
+
+                            // Check if the input file is a file or a directory
+                            const stat = fs.lstatSync(inputFile);
+                            if (stat.isDirectory()) {
+                                throw new Error('Input is a directory. Preview only supports file now');
+                            }
+                            
+                            // Read the input file content
+                            const fileContent = await fs.promises.readFile(inputFile, 'utf8');
+                            
+                            // Replace placeholders in the prompt
+                            const processedPrompt = config.prompt.replace(/{{content}}/g, fileContent);
+                            
+                            // Create a temporary file to show the preview
+                            await fs.promises.mkdir(this.context.globalStorageUri.fsPath, { recursive: true });
+                            const tempFile = path.join(this.context.globalStorageUri.fsPath, 'preview_llm_request.txt');
+                            
+                            await fs.promises.writeFile(tempFile, processedPrompt);
+                            
+                            // Open the preview in a new editor
+                            const doc = await vscode.workspace.openTextDocument(tempFile);
+                            await vscode.window.showTextDocument(doc, { preview: false });
+                            
+                            // Clean up when editor is closed
+                            const closeDisposable = vscode.window.onDidChangeVisibleTextEditors(editors => {
+                                if (!editors.some(e => e.document.uri.fsPath === tempFile)) {
+                                    closeDisposable.dispose();
+                                    fs.promises.unlink(tempFile).catch(err => {
+                                        logOutputChannel.error(`Error deleting preview file: ${err.message}`);
+                                    });
+                                }
+                            });
+                            
+                        } catch (error) {
+                            if (error instanceof Error) {
+                                logOutputChannel.error(`Error previewing LLM request: ${error.message}`);
+                                vscode.window.showErrorMessage(`Failed to preview LLM request: ${error.message}`);
+                            } else {
+                                logOutputChannel.error(`Unknown error previewing LLM request: ${JSON.stringify(error)}`);
+                                vscode.window.showErrorMessage('Failed to preview LLM request due to an unknown error');
+                            }
+                        }
+                        break;
+
                     case 'openPromptInEditor':
                         try {
                             const prompt = message.prompt;

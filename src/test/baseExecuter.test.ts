@@ -1,5 +1,5 @@
 import { strict as assert } from 'assert';
-import { AbstractBaseExecuter } from '../transformers/executer/baseExecuter';
+import { AbstractBaseExecuter } from '../execution/baseExecuter';
 import { TransformerConfig } from '../types';
 
 // Mock class extending AbstractBaseExecuter for testing
@@ -56,11 +56,11 @@ suite('BaseExecuter Test Suite', () => {
   });
 
   test('should generate correct user message', () => {
-    const config: MockTransformerConfig = { prompt: 'Prefix: {{content}}' } as any;
+    const config: MockTransformerConfig = { prompt: 'Prefix: {{content}}', outputFileName: ".txt"} as any;
     const data = 'sample input';
     const message = executer.generateUserMessage(config, data);
 
-    assert.equal(message, 'Prefix: sample input');
+    assert.equal(message, 'Prefix: sample input\nThe output will be written to a file ending with extension .txt . Make sure the response only contains data of that type.');
   });
 
   test('should validate output data', () => {
