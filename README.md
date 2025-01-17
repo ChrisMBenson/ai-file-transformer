@@ -6,7 +6,7 @@ This allows for saving, and maintaining of advanced prompts and templates, as we
 
 ## Features
 
-- **Multiple AI Model Support**: Choose from OpenAI or other modesl
+- **Multiple AI Model Support**: Choose from OpenAI or other models
 - **Customisable Transformers**: Create and manage transformers with:
   - Wildcard file matching
   - Custom prompt templates with placeholder support
